@@ -348,27 +348,22 @@ main {
   Light Mode - Skills Section Custom Styling
 ===================*/
 
-/* Use the same alt background color already defined */
 .light .skills {
-  background-color: var(--clr-bg);
-  padding-top: 2rem;
-  padding-bottom: 2rem;
+  background-color: var(--clr-bg); /* matches site background, not pure white */
+  color: var(--clr-fg);            /* default foreground */
 }
 
-/* Apply olive green styling to each skill tile */
 .light .skills__list-item {
-  background-color: #778450;  /* Master Chief olive green */
-  color: white;
-  font-weight: 500;
-  border-radius: 6px;
-  padding: 0.6em 1.2em;
-  box-shadow: var(--shadow);
-  transition: background-color 0.3s ease;
+  background-color: #778450; /* olive green tile */
+  color: #ffffff;            /* white text */
 }
 
-/* Make section title text match site theme */
+.light .skills__list-item:hover {
+  background-color: #6a7740; /* darker olive on hover */
+}
+
 .light .section__title {
-  color: var(--clr-fg);
+  color: var(--clr-fg); /* consistent heading color */
 }
 
 
