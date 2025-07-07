@@ -349,20 +349,21 @@ main {
 ===================*/
 
 .light .skills {
-  background-color: #778450;
-  color: white;
+  background-color: white; /* white section background */
+  color: #333; /* fallback text color if needed */
   padding-top: 2rem;
   padding-bottom: 2rem;
 }
 
 .light .skill {
-  border: 1px solid #fff;
-  background-color: transparent;
-  color: white;
+  background-color: #778450; /* olive green tile */
+  color: white;               /* white text */
+  font-weight: 500;
+  border: none;               /* optional: remove borders */
 }
 
 .light .section__title {
-  color: white;
+  color: #333; /* keep heading readable on white */
 }
 
 /*===================
