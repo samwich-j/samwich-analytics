@@ -350,7 +350,7 @@ main {
 
 /* Use the same alt background color already defined */
 .light .skills {
-  background-color: var(--clr-bg-alt);
+  background-color: var(--clr-bg);
   padding-top: 2rem;
   padding-bottom: 2rem;
 }
@@ -364,11 +364,6 @@ main {
   padding: 0.6em 1.2em;
   box-shadow: var(--shadow);
   transition: background-color 0.3s ease;
-}
-
-/* Optional: hover effect */
-.light .skills__list-item:hover {
-  background-color: #6a7740; /* slightly darker olive */
 }
 
 /* Make section title text match site theme */
