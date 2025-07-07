@@ -344,6 +344,31 @@ main {
   margin: 0.5em;
 }
 
+/*===================
+  Light Mode - Skills Section Custom Styling
+===================*/
+
+.light .skills {
+  background-color: #778450;
+  color: white;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+.light .skill {
+  border: 1px solid #fff;
+  background-color: transparent;
+  color: white;
+}
+
+.light .section__title {
+  color: white;
+}
+
+/*===================
+  More Options
+===================*/
+
 .contact {
   flex-direction: column;
 }
