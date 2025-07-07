@@ -36,11 +36,11 @@ body {
 }
 
 .dark {
-  --clr-bg: #1a1f1a;         /* very dark olive green */
-  --clr-bg-alt: #2d332d;     /* slightly lighter for cards/sections */
+  --clr-bg: #36361c;         /* very dark olive green */
+  --clr-bg-alt: #5b5a2e;     /* slightly lighter for cards/sections */
   --clr-fg: #e6e6e6;         /* main text - soft white */
   --clr-fg-alt: #fefefe;     /* bright white for headings */
-  --clr-primary: #6a9955;    /* master chief olive green */
+  --clr-primary: #36361c;    /* master chief olive green */
   --clr-accent: #d4af37;     /* gold accent (can be used for buttons later) */
   --shadow: rgba(0, 0, 0, 0.25) 0px 7px 29px 0px;
 }
