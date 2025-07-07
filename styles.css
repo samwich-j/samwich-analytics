@@ -31,7 +31,7 @@ body {
   --clr-bg-alt: #ffffff;          /* section/card background */
   --clr-fg: #555555;              /* main text */
   --clr-fg-alt: #444444;          /* darker text for headings */
-  --clr-primary: #4b5320;         /* olive green (Master Chief inspired) */
+  --clr-primary: #5b5a2e;         /* olive green (Master Chief inspired) */
   --shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
 
