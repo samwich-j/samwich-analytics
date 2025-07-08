@@ -1,49 +1,47 @@
-const body = document.body
+const body = document.body;
+const logoImage = document.getElementById('logo-image');
+const btnThemeIcon = document.getElementById('btn-theme');
+const btnHamburger = document.querySelector('.fa-bars');
 
-const logoImage = document.getElementById('logo-image')
+const addThemeClass = (bodyClass, iconClass) => {
+  body.classList.add(bodyClass);
+  btnThemeIcon.classList.add(iconClass);
+  updateLogo();
+};
 
-// ✅ Updated theme button & icon targeting
-const btnTheme = document.getElementById('theme-toggle')
-const themeIcon = btnTheme.querySelector('i')
+const getBodyTheme = localStorage.getItem('portfolio-theme') || 'light';
+const getIconTheme = localStorage.getItem('portfolio-icon-theme') || 'fa-moon';
 
-const btnHamburger = document.querySelector('.fa-bars')
+addThemeClass(getBodyTheme, getIconTheme);
 
-const addThemeClass = (bodyClass, btnIconClass) => {
-  body.classList.add(bodyClass)
-  themeIcon.classList.add(btnIconClass)
-  updateLogo()
-}
+const isDark = () => body.classList.contains('dark');
 
-const getBodyTheme = localStorage.getItem('portfolio-theme') || 'light'
-const getBtnTheme = localStorage.getItem('portfolio-btn-theme') || 'fa-moon'
+const setTheme = (bodyClass, iconClass) => {
+  body.classList.remove('light', 'dark');
+  btnThemeIcon.classList.remove('fa-moon', 'fa-sun');
 
-addThemeClass(getBodyTheme, getBtnTheme)
+  addThemeClass(bodyClass, iconClass);
 
-const isDark = () => body.classList.contains('dark')
-
-const setTheme = (bodyClass, btnIconClass) => {
-  body.classList.remove(localStorage.getItem('portfolio-theme'))
-  themeIcon.classList.remove(localStorage.getItem('portfolio-btn-theme'))
-
-  addThemeClass(bodyClass, btnIconClass)
-
-  localStorage.setItem('portfolio-theme', bodyClass)
-  localStorage.setItem('portfolio-btn-theme', btnIconClass)
-
-  updateLogo()
-}
+  localStorage.setItem('portfolio-theme', bodyClass);
+  localStorage.setItem('portfolio-icon-theme', iconClass);
+};
 
 const updateLogo = () => {
-  if (!logoImage) return
+  if (!logoImage) return;
   logoImage.src = isDark()
     ? 'assets/logos/Logo-dark.png'
-    : 'assets/logos/Logo-light.png'
-}
+    : 'assets/logos/Logo-light.png';
+};
 
-const toggleTheme = () =>
-  isDark() ? setTheme('light', 'fa-moon') : setTheme('dark', 'fa-sun')
+const toggleTheme = () => {
+  if (isDark()) {
+    setTheme('light', 'fa-moon');
+  } else {
+    setTheme('dark', 'fa-sun');
+  }
+};
 
-btnTheme.addEventListener('click', toggleTheme)
+btnThemeIcon.addEventListener('click', toggleTheme);
 
 const displayList = () => {
 	const navUl = document.querySelector('.nav__list')
