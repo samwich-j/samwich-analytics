@@ -9,7 +9,9 @@ Thanks again to rjshkhr, go check out his template and work.
 
 
 
-Cleanfolio Minimal
+### Cleanfolio Minimal Original Read Me
+
+https://github.com/rjshkhr/cleanfolio-minimal
 
 A portfolio template built with HTML, CSS, and JavaScript.
 
