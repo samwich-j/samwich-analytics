@@ -456,13 +456,15 @@ main {
 }
 
 .logo {
-  height: 40px; /* You can adjust this */
+  height: 55px; /* You can adjust this */
   width: auto;
 }
 
 .logo-text {
-  font-size: 1.25rem;
-  font-weight: 500;
-  color: var(--clr-fg-alt);
+  font-size: .9rem;          /* Smaller than before */
+  font-weight: 400;         /* Normal font weight */
+  color: var(--clr-fg-alt); /* Keeps it dark/light mode compatible */
+  font-family: 'Poppins', sans-serif;  /* Restore original font */
 }
+
 
