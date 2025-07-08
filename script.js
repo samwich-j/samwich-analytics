@@ -1,5 +1,5 @@
 const body = document.body;
-
+//hello
 const btnTheme = document.getElementById('theme-toggle'); // Use button ID
 const btnHamburger = document.querySelector('.fa-bars');
 const logoImage = document.getElementById('logo-image'); // Get logo <img>
