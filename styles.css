@@ -446,3 +446,34 @@ main {
     display: none;
   }
 }
+/* Logo Styles */
+.logo-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.logo {
+  height: 40px;
+  width: auto;
+  margin-right: 10px;
+  transition: filter 0.3s ease;
+}
+
+.logo-text {
+  font-size: 1.2rem;
+  color: var(--clr-primary);
+  font-weight: 600;
+}
+
+/* Optional: Slightly smaller on mobile */
+@media (max-width: 600px) {
+  .logo {
+    height: 32px;
+  }
+
+  .logo-text {
+    font-size: 1rem;
+  }
+}
+
