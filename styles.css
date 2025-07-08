@@ -451,31 +451,18 @@ main {
 .logo-link {
   display: flex;
   align-items: center;
+  gap: 0.5rem;
   text-decoration: none;
 }
 
 .logo {
-  height: 40px;
+  height: 40px; /* You can adjust this */
   width: auto;
-  margin-right: 10px;
-  transition: filter 0.3s ease;
 }
 
 .logo-text {
-  font-size: 1.1rem;
-  margin-left: 0.5rem;
-  font-weight: 600;
-  color: var(--clr-primary);
-}
-
-/* Optional: Slightly smaller on mobile */
-@media (max-width: 600px) {
-  .logo {
-    height: 32px;
-  }
-
-  .logo-text {
-    font-size: 1rem;
-  }
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--clr-fg-alt);
 }
 
