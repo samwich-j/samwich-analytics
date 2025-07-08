@@ -1,11 +1,15 @@
 const body = document.body
 
+const logoImage = document.getElementById('logo-image')
+
 const btnTheme = document.querySelector('.fa-moon')
 const btnHamburger = document.querySelector('.fa-bars')
 
 const addThemeClass = (bodyClass, btnClass) => {
   body.classList.add(bodyClass)
   btnTheme.classList.add(btnClass)
+
+	updateLogo()
 }
 
 const getBodyTheme = localStorage.getItem('portfolio-theme')
@@ -24,6 +28,13 @@ const setTheme = (bodyClass, btnClass) => {
 
 	localStorage.setItem('portfolio-theme', bodyClass)
 	localStorage.setItem('portfolio-btn-theme', btnClass)
+	
+	updateLogo()
+}
+
+const updateLogo = () => {
+  if (!logoImage) return
+  logoImage.src = isDark() ? 'assets/logo-dark.png' : 'assets/logo-light.png'
 }
 
 const toggleTheme = () =>
