@@ -462,7 +462,7 @@ main {
 
 .logo-text {
   font-size: .9rem;          /* Smaller than before */
-  font-weight: 400;         /* Normal font weight */
+  font-weight: 700;         /* Normal font weight */
   color: var(--clr-fg-alt); /* Keeps it dark/light mode compatible */
   font-family: 'Poppins', sans-serif;  /* Restore original font */
 }
