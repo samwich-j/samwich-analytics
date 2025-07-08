@@ -1,47 +1,35 @@
-const body = document.body;
-const logoImage = document.getElementById('logo-image');
-const btnThemeIcon = document.getElementById('btn-theme');
-const btnHamburger = document.querySelector('.fa-bars');
+const body = document.body
 
-const addThemeClass = (bodyClass, iconClass) => {
-  body.classList.add(bodyClass);
-  btnThemeIcon.classList.add(iconClass);
-  updateLogo();
-};
+const btnTheme = document.querySelector('.fa-moon')
+const btnHamburger = document.querySelector('.fa-bars')
 
-const getBodyTheme = localStorage.getItem('portfolio-theme') || 'light';
-const getIconTheme = localStorage.getItem('portfolio-icon-theme') || 'fa-moon';
+const addThemeClass = (bodyClass, btnClass) => {
+  body.classList.add(bodyClass)
+  btnTheme.classList.add(btnClass)
+}
 
-addThemeClass(getBodyTheme, getIconTheme);
+const getBodyTheme = localStorage.getItem('portfolio-theme')
+const getBtnTheme = localStorage.getItem('portfolio-btn-theme')
 
-const isDark = () => body.classList.contains('dark');
+addThemeClass(getBodyTheme, getBtnTheme)
 
-const setTheme = (bodyClass, iconClass) => {
-  body.classList.remove('light', 'dark');
-  btnThemeIcon.classList.remove('fa-moon', 'fa-sun');
+const isDark = () => body.classList.contains('dark')
 
-  addThemeClass(bodyClass, iconClass);
+const setTheme = (bodyClass, btnClass) => {
 
-  localStorage.setItem('portfolio-theme', bodyClass);
-  localStorage.setItem('portfolio-icon-theme', iconClass);
-};
+	body.classList.remove(localStorage.getItem('portfolio-theme'))
+	btnTheme.classList.remove(localStorage.getItem('portfolio-btn-theme'))
 
-const updateLogo = () => {
-  if (!logoImage) return;
-  logoImage.src = isDark()
-    ? 'assets/logos/Logo-dark.png'
-    : 'assets/logos/Logo-light.png';
-};
+  addThemeClass(bodyClass, btnClass)
 
-const toggleTheme = () => {
-  if (isDark()) {
-    setTheme('light', 'fa-moon');
-  } else {
-    setTheme('dark', 'fa-sun');
-  }
-};
+	localStorage.setItem('portfolio-theme', bodyClass)
+	localStorage.setItem('portfolio-btn-theme', btnClass)
+}
 
-btnThemeIcon.addEventListener('click', toggleTheme);
+const toggleTheme = () =>
+	isDark() ? setTheme('light', 'fa-moon') : setTheme('dark', 'fa-sun')
+
+btnTheme.addEventListener('click', toggleTheme)
 
 const displayList = () => {
 	const navUl = document.querySelector('.nav__list')
