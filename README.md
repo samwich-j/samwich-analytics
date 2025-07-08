@@ -1,6 +1,6 @@
 # Samwich-Analytics Website
 
-(https://samwich-analytics.com)
+https://samwich-analytics.com
 
 Created using Cleanfolio minimal by rjskhr (see links below). I updated the colors, added my own personal logo, changed links and other small design choices. As of now this project is complete but I am considering adding a table or other page with a full list of all projects I have worked on. 
 
