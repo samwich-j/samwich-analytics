@@ -34,7 +34,9 @@ const setTheme = (bodyClass, btnClass) => {
 
 const updateLogo = () => {
   if (!logoImage) return
-  logoImage.src = isDark() ? 'assets/logo-dark.png' : 'assets/logo-light.png'
+  logoImage.src = isDark()
+    ? 'assets/logos/Logo-dark.png'
+    : 'assets/logos/Logo-light.png'
 }
 
 const toggleTheme = () =>
