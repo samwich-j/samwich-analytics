@@ -2,34 +2,35 @@ const body = document.body
 
 const logoImage = document.getElementById('logo-image')
 
-const btnTheme = document.querySelector('.fa-moon')
+// ✅ Updated theme button & icon targeting
+const btnTheme = document.getElementById('theme-toggle')
+const themeIcon = btnTheme.querySelector('i')
+
 const btnHamburger = document.querySelector('.fa-bars')
 
-const addThemeClass = (bodyClass, btnClass) => {
+const addThemeClass = (bodyClass, btnIconClass) => {
   body.classList.add(bodyClass)
-  btnTheme.classList.add(btnClass)
-
-	updateLogo()
+  themeIcon.classList.add(btnIconClass)
+  updateLogo()
 }
 
-const getBodyTheme = localStorage.getItem('portfolio-theme')
-const getBtnTheme = localStorage.getItem('portfolio-btn-theme')
+const getBodyTheme = localStorage.getItem('portfolio-theme') || 'light'
+const getBtnTheme = localStorage.getItem('portfolio-btn-theme') || 'fa-moon'
 
 addThemeClass(getBodyTheme, getBtnTheme)
 
 const isDark = () => body.classList.contains('dark')
 
-const setTheme = (bodyClass, btnClass) => {
+const setTheme = (bodyClass, btnIconClass) => {
+  body.classList.remove(localStorage.getItem('portfolio-theme'))
+  themeIcon.classList.remove(localStorage.getItem('portfolio-btn-theme'))
 
-	body.classList.remove(localStorage.getItem('portfolio-theme'))
-	btnTheme.classList.remove(localStorage.getItem('portfolio-btn-theme'))
+  addThemeClass(bodyClass, btnIconClass)
 
-  addThemeClass(bodyClass, btnClass)
+  localStorage.setItem('portfolio-theme', bodyClass)
+  localStorage.setItem('portfolio-btn-theme', btnIconClass)
 
-	localStorage.setItem('portfolio-theme', bodyClass)
-	localStorage.setItem('portfolio-btn-theme', btnClass)
-	
-	updateLogo()
+  updateLogo()
 }
 
 const updateLogo = () => {
@@ -39,9 +40,8 @@ const updateLogo = () => {
     : 'assets/logos/Logo-light.png'
 }
 
-
 const toggleTheme = () =>
-	isDark() ? setTheme('light', 'fa-moon') : setTheme('dark', 'fa-sun')
+  isDark() ? setTheme('light', 'fa-moon') : setTheme('dark', 'fa-sun')
 
 btnTheme.addEventListener('click', toggleTheme)
 
