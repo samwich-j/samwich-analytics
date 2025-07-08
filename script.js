@@ -1,7 +1,16 @@
 const body = document.body;
 
-const btnTheme = document.getElementById('theme-toggle'); // Use button ID, not just icon
+const btnTheme = document.getElementById('theme-toggle'); // Use button ID
 const btnHamburger = document.querySelector('.fa-bars');
+const logoImage = document.getElementById('logo-image'); // Get logo <img>
+
+// Update logo source depending on theme
+const updateLogo = () => {
+  if (!logoImage) return;
+  logoImage.src = body.classList.contains('dark')
+    ? 'assets/logos/Logo-dark.png'
+    : 'assets/logos/Logo-light.png';
+};
 
 // Apply saved theme on page load
 const getBodyTheme = localStorage.getItem('portfolio-theme');
@@ -10,6 +19,7 @@ const getBtnTheme = localStorage.getItem('portfolio-btn-theme');
 if (getBodyTheme && getBtnTheme) {
   body.classList.add(getBodyTheme);
   btnTheme.firstElementChild.classList.add(getBtnTheme);
+  updateLogo(); // <- Make sure logo loads correctly on page load
 }
 
 // Check if dark mode is active
@@ -28,6 +38,8 @@ const setTheme = (bodyClass, btnClass) => {
 
   localStorage.setItem('portfolio-theme', bodyClass);
   localStorage.setItem('portfolio-btn-theme', btnClass);
+
+  updateLogo(); // <- Update logo after theme switch
 };
 
 // Toggle light/dark theme
