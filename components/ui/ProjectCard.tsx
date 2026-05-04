@@ -24,6 +24,7 @@ export function ProjectCard({ title, description, tags, link, tagCategory = 'acc
         padding: '20px', border: '1px solid var(--border)',
         borderLeft: `3px solid ${hovered ? 'var(--accent)' : 'var(--border)'}`,
         boxShadow: hovered ? 'var(--shadow)' : 'var(--shadow-sm)',
+        transform: hovered ? 'translateY(-2px)' : 'none',
         transition: 'all var(--trans-normal)',
         display: 'flex', flexDirection: 'column', gap: 10,
         cursor: link ? 'pointer' : 'default',

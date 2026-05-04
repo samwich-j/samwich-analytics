@@ -108,6 +108,14 @@ function Block({ block, onChange, onEnter, onDelete, onFocus, focused }: {
   const [slashMenu, setSlashMenu] = useState<{ x: number; y: number; query: string } | null>(null);
   const [localFocused, setLocalFocused] = useState(false);
 
+  // Set initial content on mount — never pass React children to contentEditable
+  // (children cause React to reset cursor position on every re-render)
+  useEffect(() => {
+    if (ref.current) ref.current.innerText = block.content;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Move cursor to end when programmatically focused (new block inserted)
   useEffect(() => {
     if (focused && ref.current) {
       ref.current.focus();
@@ -160,9 +168,8 @@ function Block({ block, onChange, onEnter, onDelete, onFocus, focused }: {
       onFocus={() => { setLocalFocused(true); onFocus(); }}
       onBlur={() => setLocalFocused(false)}
       style={{ outline: 'none', wordBreak: 'break-word', ...style }}
-      data-placeholder={placeholder}>
-      {block.content}
-    </div>
+      data-placeholder={placeholder}
+    />
   );
 
   const rendered = (

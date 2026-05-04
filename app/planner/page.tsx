@@ -39,13 +39,14 @@ function formatTime(h: number) {
 
 interface Block { id: number; title: string; start: number; end: number; category: string; }
 
-function TimeBlock({ block, hourHeight, startHour }: { block: Block; hourHeight: number; startHour: number }) {
+function TimeBlock({ block, hourHeight, startHour, onClick }: { block: Block; hourHeight: number; startHour: number; onClick: () => void }) {
   const [hovered, setHovered] = useState(false);
   const top = (block.start - startHour) * hourHeight;
   const height = (block.end - block.start) * hourHeight;
   const tall = height > 50;
   return (
     <div
+      onClick={e => { e.stopPropagation(); onClick(); }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
@@ -67,6 +68,88 @@ function TimeBlock({ block, hourHeight, startHour }: { block: Block; hourHeight:
           {formatTime(block.start)} – {formatTime(block.end)}
         </div>
       )}
+    </div>
+  );
+}
+
+function EditBlockDialog({ block, onClose, onSave, onDelete }: {
+  block: Block; onClose: () => void;
+  onSave: (b: Block) => void; onDelete: (id: number) => void;
+}) {
+  const [title, setTitle] = useState(block.title);
+  const [category, setCategory] = useState(block.category);
+  const [startH, setStartH] = useState(block.start);
+  const [endH, setEndH] = useState(block.end);
+
+  function timeOptions() {
+    const opts: number[] = [];
+    for (let h = 6; h <= 23.5; h += 0.5) opts.push(h);
+    return opts;
+  }
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(30,30,15,0.45)', backdropFilter: 'blur(4px)' }} />
+      <div style={{ position: 'relative', background: 'var(--bg-alt)', borderRadius: 'var(--radius-xl)', padding: 28, width: 380, maxWidth: '95vw', boxShadow: 'var(--shadow-lg)', border: '1px solid var(--border)' }}>
+        <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: 20, color: 'var(--text-secondary)' }}>Edit time block</h3>
+        <input
+          value={title}
+          onChange={e => setTitle(e.target.value)}
+          placeholder="Title"
+          autoFocus
+          style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1.5px solid var(--border)', background: 'var(--bg)', color: 'var(--text-primary)', fontSize: '0.9rem', fontFamily: 'var(--font-ui)', marginBottom: 16, outline: 'none', boxSizing: 'border-box' }}
+          onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
+          onBlur={e => (e.target.style.borderColor = 'var(--border)')}
+        />
+        <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
+          {(['start', 'end'] as const).map(type => (
+            <div key={type} style={{ flex: 1 }}>
+              <div style={{ fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.06em', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 6 }}>
+                {type === 'start' ? 'Start' : 'End'}
+              </div>
+              <select
+                value={type === 'start' ? startH : endH}
+                onChange={e => type === 'start' ? setStartH(Number(e.target.value)) : setEndH(Number(e.target.value))}
+                style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1.5px solid var(--border)', background: 'var(--bg)', color: 'var(--text-primary)', fontSize: '0.875rem', fontFamily: 'var(--font-ui)', outline: 'none' }}
+              >
+                {timeOptions().map(h => <option key={h} value={h}>{formatTime(h)}</option>)}
+              </select>
+            </div>
+          ))}
+        </div>
+        <div style={{ marginBottom: 24 }}>
+          <div style={{ fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.06em', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 10 }}>Category</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            {CATEGORIES.map(cat => (
+              <button key={cat.id} onClick={() => setCategory(cat.id)} style={{
+                padding: '5px 12px', borderRadius: 'var(--radius-full)', fontSize: '0.78rem', fontWeight: 500,
+                cursor: 'pointer', border: category === cat.id ? `2px solid var(--cat-${cat.catKey}-text)` : '2px solid transparent',
+                background: `var(--cat-${cat.catKey}-bg)`, color: `var(--cat-${cat.catKey}-text)`,
+                fontFamily: 'var(--font-ui)', transition: 'all var(--trans-fast)',
+              }}>
+                {cat.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 10, justifyContent: 'space-between' }}>
+          <button
+            onClick={() => onDelete(block.id)}
+            style={{ padding: '9px 14px', borderRadius: 'var(--radius-md)', border: 'none', background: 'transparent', color: '#e74c3c', cursor: 'pointer', fontFamily: 'var(--font-ui)', fontSize: '0.875rem' }}
+          >
+            Delete
+          </button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button onClick={onClose} style={{ padding: '9px 14px', borderRadius: 'var(--radius-md)', border: 'none', background: 'transparent', color: 'var(--text-primary)', cursor: 'pointer', fontFamily: 'var(--font-ui)', fontSize: '0.875rem' }}>Cancel</button>
+            <button
+              onClick={() => onSave({ ...block, title, category, start: startH, end: endH })}
+              style={{ padding: '9px 18px', borderRadius: 'var(--radius-md)', border: 'none', background: 'var(--accent)', color: '#fff', cursor: 'pointer', fontFamily: 'var(--font-ui)', fontSize: '0.875rem', fontWeight: 500 }}
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -151,7 +234,8 @@ function QuickCreateDialog({ clickedHour, onClose, onSave }: {
 
 function DailyView({ blocks, setBlocks, hourHeight }: { blocks: Block[]; setBlocks: React.Dispatch<React.SetStateAction<Block[]>>; hourHeight: number }) {
   const startHour = 6;
-  const [dialog, setDialog] = useState<number | null>(null);
+  const [createDialog, setCreateDialog] = useState<number | null>(null);
+  const [editDialog, setEditDialog] = useState<Block | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
 
   function handleGridClick(e: React.MouseEvent) {
@@ -160,7 +244,7 @@ function DailyView({ blocks, setBlocks, hourHeight }: { blocks: Block[]; setBloc
     const rect = gridRef.current!.getBoundingClientRect();
     const y = e.clientY - rect.top;
     const h = Math.floor(y / hourHeight) + startHour;
-    setDialog(h);
+    setCreateDialog(h);
   }
 
   return (
@@ -173,14 +257,24 @@ function DailyView({ blocks, setBlocks, hourHeight }: { blocks: Block[]; setBloc
         ))}
         <div style={{ position: 'absolute', top: 0, left: 52, right: 0, bottom: 0 }}>
           <NowIndicator hourHeight={hourHeight} startHour={startHour} />
-          {blocks.map(b => <TimeBlock key={b.id} block={b} hourHeight={hourHeight} startHour={startHour} />)}
+          {blocks.map(b => (
+            <TimeBlock key={b.id} block={b} hourHeight={hourHeight} startHour={startHour} onClick={() => setEditDialog(b)} />
+          ))}
         </div>
       </div>
-      {dialog !== null && (
+      {createDialog !== null && (
         <QuickCreateDialog
-          clickedHour={dialog}
-          onClose={() => setDialog(null)}
-          onSave={block => { setBlocks(prev => [...prev, { ...block, id: Date.now() }]); setDialog(null); }}
+          clickedHour={createDialog}
+          onClose={() => setCreateDialog(null)}
+          onSave={block => { setBlocks(prev => [...prev, { ...block, id: Date.now() }]); setCreateDialog(null); }}
+        />
+      )}
+      {editDialog !== null && (
+        <EditBlockDialog
+          block={editDialog}
+          onClose={() => setEditDialog(null)}
+          onSave={updated => { setBlocks(prev => prev.map(b => b.id === updated.id ? updated : b)); setEditDialog(null); }}
+          onDelete={id => { setBlocks(prev => prev.filter(b => b.id !== id)); setEditDialog(null); }}
         />
       )}
     </div>

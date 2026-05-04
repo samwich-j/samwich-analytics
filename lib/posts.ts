@@ -17,7 +17,7 @@ export interface Post extends PostMeta {
   content: string;
 }
 
-export async function getPosts(): Promise<PostMeta[]> {
+export async function getPosts({ includeAllDrafts = false } = {}): Promise<PostMeta[]> {
   if (!fs.existsSync(POSTS_DIR)) return [];
 
   const files = fs.readdirSync(POSTS_DIR).filter(f => f.endsWith('.md') || f.endsWith('.mdx'));
@@ -39,7 +39,7 @@ export async function getPosts(): Promise<PostMeta[]> {
   const isDev = process.env.NODE_ENV === 'development';
 
   return posts
-    .filter(p => isDev || !p.isDraft)
+    .filter(p => includeAllDrafts || isDev || !p.isDraft)
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 

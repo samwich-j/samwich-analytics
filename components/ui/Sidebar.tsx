@@ -12,6 +12,7 @@ const PUBLIC_NAV = [
 ];
 
 const PRIVATE_NAV = [
+  { href: '/drafts',  icon: 'drafts',  label: 'Drafts' },
   { href: '/planner', icon: 'planner', label: 'Planner' },
   { href: '/notes',   icon: 'tasks',   label: 'Notes' },
 ];
