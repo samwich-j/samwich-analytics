@@ -7,13 +7,13 @@ import { useTheme } from '@/components/providers/ThemeProvider';
 import { Icon } from './Icon';
 
 const PUBLIC_NAV = [
-  { href: '/',      icon: 'home',    label: 'Home' },
-  { href: '/blog',  icon: 'blog',    label: 'Blog' },
+  { href: '/',     icon: 'home', label: 'Home' },
+  { href: '/blog', icon: 'blog', label: 'Blog' },
 ];
 
 const PRIVATE_NAV = [
   { href: '/planner', icon: 'planner', label: 'Planner' },
-  { href: '/notes',   icon: 'notes',   label: 'Notes' },
+  { href: '/notes',   icon: 'tasks',   label: 'Notes' },
 ];
 
 interface SidebarProps {
@@ -22,24 +22,24 @@ interface SidebarProps {
   onCloseDrawer?: () => void;
 }
 
-function NavItem({ href, icon, label, active, locked }: {
-  href: string; icon: string; label: string; active: boolean; locked?: boolean;
+function NavItem({ href, icon, label, active }: {
+  href: string; icon: string; label: string; active: boolean;
 }) {
   return (
-    <Link href={locked ? '/login' : href} style={{ textDecoration: 'none' }}>
+    <Link href={href} style={{ textDecoration: 'none' }}>
       <div style={{
         display: 'flex', alignItems: 'center', gap: 10,
-        padding: '8px 12px', borderRadius: 'var(--radius-md)',
+        padding: '7px 10px', borderRadius: 6,
         background: active ? 'var(--sidebar-item-active-bg)' : 'transparent',
-        color: active ? 'var(--sidebar-item-active-text)' : locked ? 'var(--text-muted)' : 'var(--text-primary)',
-        fontWeight: active ? 500 : 400, fontSize: 'var(--text-sm)',
-        cursor: 'pointer', transition: 'all var(--trans-fast)',
-        opacity: locked ? 0.6 : 1,
+        color: active ? 'var(--sidebar-item-active-text)' : 'var(--text-primary)',
+        fontWeight: active ? 500 : 400, fontSize: '0.875rem',
+        cursor: 'pointer', transition: 'background var(--trans-fast)',
+        fontFamily: 'var(--font-ui)',
       }}
         onMouseEnter={e => { if (!active) (e.currentTarget as HTMLDivElement).style.background = 'var(--sidebar-item-hover)'; }}
         onMouseLeave={e => { if (!active) (e.currentTarget as HTMLDivElement).style.background = 'transparent'; }}
       >
-        <Icon name={locked ? 'lock' : icon} size={16} />
+        <Icon name={icon} size={16} color={active ? 'var(--accent)' : 'var(--text-muted)'} />
         <span style={{ flex: 1 }}>{label}</span>
       </div>
     </Link>
@@ -56,75 +56,116 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
     <div style={{
       width: 'var(--sidebar-width)', height: '100%',
       background: 'var(--sidebar-bg)', borderRight: '1px solid var(--sidebar-border)',
-      display: 'flex', flexDirection: 'column', padding: '16px 12px',
+      display: 'flex', flexDirection: 'column',
       fontFamily: 'var(--font-ui)',
     }}>
-      {/* Logo / workspace name */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, padding: '4px 4px 0' }}>
-        <span style={{ fontWeight: 600, fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', letterSpacing: '-0.01em' }}>
-          samwich analytics
-        </span>
-        {onClose && (
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', padding: 4 }}>
-            <Icon name="x" size={16} />
-          </button>
-        )}
+      {/* Logo */}
+      <div style={{ padding: '20px 16px 16px', borderBottom: '1px solid var(--sidebar-border)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-secondary)', letterSpacing: '-0.01em' }}>
+            samwich{' '}
+            <span style={{ color: 'var(--accent)', fontWeight: 400 }}>analytics</span>
+          </span>
+          {onClose && (
+            <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', padding: 4 }}>
+              <Icon name="x" size={16} />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Navigation */}
-      <nav style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
+      <nav style={{ flex: 1, padding: '12px 8px', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+        <div style={{ padding: '4px 8px 8px', fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.08em', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+          Workspace
+        </div>
+
         {PUBLIC_NAV.map(item => (
-          <NavItem key={item.href} {...item} active={pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))} />
+          <NavItem
+            key={item.href}
+            {...item}
+            active={pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))}
+          />
         ))}
 
-        <div style={{ height: 1, background: 'var(--border)', margin: '8px 4px' }} />
-
-        {PRIVATE_NAV.map(item => (
-          <NavItem key={item.href} {...item} active={pathname.startsWith(item.href)} locked={!loggedIn} />
-        ))}
-      </nav>
-
-      {/* Bottom: theme + auth */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, paddingTop: 12, borderTop: '1px solid var(--border)' }}>
-        <button
-          onClick={toggleTheme}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px',
-            borderRadius: 'var(--radius-md)', background: 'none', border: 'none',
-            cursor: 'pointer', color: 'var(--text-muted)', fontSize: 'var(--text-sm)',
-            fontFamily: 'var(--font-ui)', width: '100%', transition: 'all var(--trans-fast)',
-          }}
-          onMouseEnter={e => (e.currentTarget.style.background = 'var(--sidebar-item-hover)')}
-          onMouseLeave={e => (e.currentTarget.style.background = 'none')}
-        >
-          <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={16} />
-          {theme === 'dark' ? 'Light mode' : 'Dark mode'}
-        </button>
-
-        {loggedIn ? (
+        {/* Dark mode — right after public nav, above the divider */}
+        <div style={{ paddingTop: 8, marginTop: 4, borderTop: '1px solid var(--border)' }}>
           <button
-            onClick={() => signOut({ callbackUrl: '/' })}
+            onClick={toggleTheme}
             style={{
-              display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px',
-              borderRadius: 'var(--radius-md)', background: 'none', border: 'none',
-              cursor: 'pointer', color: 'var(--text-muted)', fontSize: 'var(--text-sm)',
-              fontFamily: 'var(--font-ui)', width: '100%', transition: 'all var(--trans-fast)',
+              display: 'flex', alignItems: 'center', gap: 10, padding: '7px 10px',
+              borderRadius: 6, background: 'none', border: 'none',
+              cursor: 'pointer', color: 'var(--text-muted)', fontSize: '0.875rem',
+              fontFamily: 'var(--font-ui)', width: '100%', transition: 'background var(--trans-fast)',
             }}
             onMouseEnter={e => (e.currentTarget.style.background = 'var(--sidebar-item-hover)')}
             onMouseLeave={e => (e.currentTarget.style.background = 'none')}
           >
-            <Icon name="user" size={16} />
-            Sign out
+            <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={16} color="var(--text-muted)" />
+            {theme === 'dark' ? 'Light mode' : 'Dark mode'}
           </button>
-        ) : (
-          <Link href="/login" style={{ textDecoration: 'none' }}>
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px',
-              borderRadius: 'var(--radius-md)', color: 'var(--text-muted)', fontSize: 'var(--text-sm)',
-            }}>
-              <Icon name="lock" size={16} />
-              Sign in
+        </div>
+
+        {/* Private section — only visible when signed in */}
+        {loggedIn && (
+          <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid var(--border)' }}>
+            <div style={{ padding: '4px 8px 8px', fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.08em', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+              Private
             </div>
+            {PRIVATE_NAV.map(item => (
+              <NavItem
+                key={item.href}
+                {...item}
+                active={pathname.startsWith(item.href)}
+              />
+            ))}
+          </div>
+        )}
+      </nav>
+
+      {/* Bottom: signed-in user or subtle Admin link */}
+      <div style={{ padding: '12px 8px', borderTop: '1px solid var(--sidebar-border)' }}>
+        {loggedIn ? (
+          <>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 6 }}>
+              <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', color: 'white', fontWeight: 600, flexShrink: 0 }}>
+                S
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: '0.75rem', fontWeight: 500, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  Sam Johnston
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => signOut({ callbackUrl: '/' })}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px',
+                borderRadius: 6, background: 'none', border: 'none',
+                cursor: 'pointer', color: 'var(--text-muted)', fontSize: '0.75rem',
+                fontFamily: 'var(--font-ui)', width: '100%',
+                transition: 'background var(--trans-fast)',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'var(--sidebar-item-hover)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+            >
+              <Icon name="user" size={13} />
+              Sign out
+            </button>
+          </>
+        ) : (
+          <Link href="/login" style={{ textDecoration: 'none', display: 'flex', justifyContent: 'flex-end' }}>
+            <span style={{
+              color: 'var(--text-muted)', fontSize: '0.7rem',
+              padding: '4px 8px', opacity: 0.5,
+              transition: 'opacity var(--trans-fast)',
+              cursor: 'pointer',
+            }}
+              onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
+              onMouseLeave={e => (e.currentTarget.style.opacity = '0.5')}
+            >
+              Admin
+            </span>
           </Link>
         )}
       </div>

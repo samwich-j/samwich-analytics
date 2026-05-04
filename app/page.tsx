@@ -77,7 +77,7 @@ export default function PortfolioPage() {
       {/* Projects */}
       <section style={{ marginBottom: 56 }}>
         <SectionHeading>Projects</SectionHeading>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div className="project-grid">
           {PROJECTS.map(p => (
             <ProjectCard key={p.title} {...p} />
           ))}
