@@ -1,101 +1,94 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import Link from 'next/link';
+import { ProjectCard } from '@/components/ui/ProjectCard';
+import { SkillsSection } from '@/components/ui/SkillsSection';
+import { SectionHeading } from '@/components/ui/SectionHeading';
+
+const PROJECTS = [
+  {
+    title: 'Midway Open Space Bond Report',
+    description: 'Designed and administered a community survey to evaluate resident support for an open space bond initiative. Conducted statistical analysis in R, produced visualizations, and delivered a professional report used to guide city planning decisions.',
+    tags: ['Survey Design', 'R', 'Report Writing'],
+    link: 'https://drive.google.com/file/d/1Qn2UaxJ7x3vKGrOpD5b5xVk5GgI1HJJL/view',
+  },
+  {
+    title: 'Call of Duty: Warzone Geospatial Analysis',
+    description: 'Built a data engineering pipeline to scrape, clean, and spatially analyze thousands of in-game kill events across the Caldera map. Identified high-traffic zones and strategic hotspots using Python and geospatial libraries.',
+    tags: ['Python', 'Data Engineering', 'Geospatial Analysis'],
+    link: 'https://github.com/samwich-j/CODCalderaAnalysis',
+  },
+  {
+    title: 'Utah Valley Growth & Prosperity Summit',
+    description: 'Partnered with the Utah Valley Chamber of Commerce to design surveys, clean response data, and produce presentation-ready analytics for a regional economic summit attended by business and civic leaders.',
+    tags: ['Data Presentation', 'Survey Design', 'Data Cleaning & Analytics'],
+    link: 'https://drive.google.com/file/d/1-0xm2iyKE5gUDfQBGxw7q09cMRBFQ0Xb/view',
+  },
+];
+
+export default function PortfolioPage() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
+    <div className="content-inner">
+      {/* Hero */}
+      <section style={{ marginBottom: 56 }}>
+        <p style={{ fontSize: 'var(--text-sm)', color: 'var(--accent)', fontWeight: 500, marginBottom: 8, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+          Data Analyst & Statistical Consultant
+        </p>
+        <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.15, marginBottom: 20 }}>
+          Hi, I&apos;m Sam Johnston
+        </h1>
+        <p style={{ fontSize: 'var(--text-md)', color: 'var(--text-secondary)', lineHeight: 1.7, maxWidth: 640, marginBottom: 32 }}>
+          I study Statistics at Utah Valley University with a focus on survey methodology, experimental design, and data visualization. I help organizations turn raw data into clear, actionable insights.
+        </p>
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
           <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+            href="https://docs.google.com/forms/d/e/1FAIpQLSf_placeholder/viewform"
             target="_blank"
             rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              padding: '10px 22px', borderRadius: 'var(--radius-md)',
+              background: 'var(--accent)', color: '#fff',
+              fontWeight: 600, fontSize: 'var(--text-sm)',
+              textDecoration: 'none', transition: 'opacity var(--trans-fast)',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
+            onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
           >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
+            Get in touch
           </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="/resume"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              padding: '10px 22px', borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--border)', color: 'var(--text-primary)',
+              fontWeight: 500, fontSize: 'var(--text-sm)',
+              textDecoration: 'none', transition: 'background var(--trans-fast)',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.background = 'var(--sidebar-item-hover)')}
+            onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
           >
-            Read our docs
-          </a>
+            View résumé
+          </Link>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </section>
+
+      {/* Projects */}
+      <section style={{ marginBottom: 56 }}>
+        <SectionHeading>Projects</SectionHeading>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {PROJECTS.map(p => (
+            <ProjectCard key={p.title} {...p} />
+          ))}
+        </div>
+      </section>
+
+      {/* Skills */}
+      <section style={{ marginBottom: 56 }}>
+        <SectionHeading>Skills</SectionHeading>
+        <SkillsSection />
+      </section>
     </div>
   );
 }

@@ -1,0 +1,29 @@
+Portfolio Website Redesign
+==========================
+
+Goal:
+- Update portfolio website (samwich-analytics GitHub repo)
+- Add public blog page (/blog) for project write-ups
+- Add private planner page (/planner) with calendar integration
+
+Sections:
+  / (portfolio)     - public, existing site
+  /blog             - public, project details / write-ups
+  /planner          - private, auth-protected daily planner
+
+Planner:
+- Base UI from: https://github.com/Jayrod-21/Scheduler (missionary-style time-blocking)
+- Connect to OneDrive Calendar (Microsoft Graph API)
+- Connect to Notion Calendar (Notion API)
+- PWA for mobile / iPhone home screen shortcut
+
+Auth:
+- Single-user auth (Clerk, Auth0, or JWT passphrase)
+- Planner route only — blog and portfolio remain public
+
+Style:
+- Match existing site: simple, modern, clean
+
+References:
+- Portfolio repo: https://github.com/samwich-j/samwich-analytics
+- Scheduler repo:  https://github.com/Jayrod-21/Scheduler

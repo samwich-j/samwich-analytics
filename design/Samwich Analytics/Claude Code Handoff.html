@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Samwich Analytics — Claude Code Handoff</title>
+<link rel="stylesheet" href="tokens.css" />
+<style>
+  body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text-primary); max-width: 860px; margin: 0 auto; padding: 48px 32px 80px; }
+  h1 { font-size: 2rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 8px; }
+  h2 { font-size: 1.3rem; font-weight: 600; color: var(--text-secondary); margin: 40px 0 14px; padding-bottom: 8px; border-bottom: 2px solid var(--accent-light); }
+  h3 { font-size: 1rem; font-weight: 600; color: var(--text-secondary); margin: 20px 0 8px; }
+  p, li { font-size: 0.9rem; line-height: 1.75; color: var(--text-primary); }
+  ul, ol { padding-left: 1.4rem; margin-bottom: 12px; }
+  li::marker { color: var(--accent); }
+  a { color: var(--accent); }
+  code { background: var(--accent-lighter); color: var(--accent); padding: 2px 6px; border-radius: 4px; font-size: 0.82em; font-family: 'JetBrains Mono', monospace; }
+  pre { background: #1a1a0f; color: #d4d4d4; border-radius: 10px; padding: 20px; overflow-x: auto; font-size: 0.82rem; line-height: 1.65; margin: 12px 0 20px; border: 1px solid #333; }
+  pre code { background: none; color: inherit; padding: 0; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+  .badge-accent { background: var(--accent-light); color: var(--accent); }
+  .badge-gold { background: var(--accent-gold-light); color: var(--accent-gold); }
+  .badge-muted { background: var(--bg-hover); color: var(--text-muted); }
+  .card { background: var(--bg-alt); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; margin-bottom: 16px; }
+  .card h3 { margin-top: 0; }
+  .file-tree { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 1.8; color: var(--text-primary); }
+  .file-tree .dir { color: var(--accent); font-weight: 600; }
+  .file-tree .comment { color: var(--text-muted); }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-bottom: 20px; }
+  th { text-align: left; padding: 8px 12px; background: var(--bg-hover); color: var(--text-secondary); font-weight: 600; border-bottom: 2px solid var(--border); }
+  td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  td:first-child { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--accent); }
+  .priority-1 { color: #e74c3c; font-weight: 600; }
+  .priority-2 { color: var(--accent-gold); font-weight: 600; }
+  .priority-3 { color: var(--accent); font-weight: 600; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+  @media (prefers-color-scheme: dark) { body { --bg: #36361c; } }
+</style>
+</head>
+<body>
+
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+  <svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect x="0" y="8" width="24" height="24" rx="4" fill="#778450"/><rect x="4" y="12" width="16" height="3" rx="1.5" fill="white" opacity="0.9"/><rect x="4" y="18" width="10" height="3" rx="1.5" fill="white" opacity="0.7"/><rect x="4" y="24" width="13" height="3" rx="1.5" fill="white" opacity="0.5"/></svg>
+  <span style="font-size:0.75rem;font-weight:600;letter-spacing:0.1em;color:var(--accent);text-transform:uppercase;">Developer Handoff</span>
+</div>
+
+<h1>Samwich Analytics<br><span style="font-weight:400;font-size:1.2rem;color:var(--text-muted);">Claude Code Implementation Guide</span></h1>
+<p style="margin-bottom:4px;">Personal portfolio + private workspace. Built with Next.js 14 App Router, TypeScript, Tailwind CSS + CSS custom properties.</p>
+<p style="color:var(--text-muted);font-size:0.8rem;">Generated from design prototype · April 2026</p>
+
+<hr class="divider" />
+
+<h2>1. Project Structure</h2>
+<div class="card">
+<div class="file-tree">
+<span class="dir">samwich-analytics/</span><br>
+├── <span class="dir">app/</span><br>
+│   ├── <span class="dir">(public)/</span>            <span class="comment"># Public routes — no auth</span><br>
+│   │   ├── page.tsx               <span class="comment"># Portfolio home /</span><br>
+│   │   ├── blog/page.tsx          <span class="comment"># Blog listing /blog</span><br>
+│   │   └── blog/[slug]/page.tsx   <span class="comment"># Blog post /blog/[slug]</span><br>
+│   ├── <span class="dir">(private)/</span>           <span class="comment"># Auth-gated routes</span><br>
+│   │   ├── layout.tsx             <span class="comment"># Auth check — redirects to /login</span><br>
+│   │   ├── planner/page.tsx       <span class="comment"># Daily/weekly/monthly planner</span><br>
+│   │   ├── drafts/page.tsx        <span class="comment"># Draft blog posts</span><br>
+│   │   └── notes/                 <span class="comment"># Notes workspace</span><br>
+│   │       ├── page.tsx           <span class="comment"># Notes home (quick notes + notebooks)</span><br>
+│   │       └── [id]/page.tsx      <span class="comment"># Individual note page</span><br>
+│   ├── login/page.tsx             <span class="comment"># Passphrase login</span><br>
+│   ├── api/auth/[...nextauth]/route.ts<br>
+│   ├── layout.tsx                 <span class="comment"># Root layout — sidebar shell</span><br>
+│   └── globals.css                <span class="comment"># tokens.css → paste here</span><br>
+├── <span class="dir">components/</span><br>
+│   ├── <span class="dir">layout/</span>              <span class="comment"># Sidebar, TopBar, MobileNav</span><br>
+│   ├── <span class="dir">ui/</span>                  <span class="comment"># Btn, Tag, Icon, Card — shared primitives</span><br>
+│   ├── <span class="dir">planner/</span>             <span class="comment"># TimeGrid, TimeBlock, QuickCreate, WeeklyView, MonthlyView</span><br>
+│   ├── <span class="dir">notes/</span>               <span class="comment"># BlockEditor, Block, SlashMenu, QuickNotes, NotebookCard</span><br>
+│   └── <span class="dir">blog/</span>                <span class="comment"># PostCard, MDRenderer</span><br>
+├── <span class="dir">content/</span><br>
+│   └── <span class="dir">blog/</span>                <span class="comment"># Markdown (.mdx) files — filename = slug</span><br>
+├── <span class="dir">lib/</span><br>
+│   ├── auth.ts                    <span class="comment"># NextAuth config (credentials provider)</span><br>
+│   ├── notes.ts                   <span class="comment"># Note storage helpers</span><br>
+│   └── blog.ts                    <span class="comment"># MDX parsing with gray-matter</span><br>
+├── <span class="dir">public/assets/logos/</span><br>
+│   ├── Logo-light.png<br>
+│   └── Logo-dark.png<br>
+├── tailwind.config.ts<br>
+└── next.config.ts
+</div>
+</div>
+
+<h2>2. Build Order</h2>
+<p>Follow this sequence — each step unblocks the next:</p>
+<ol>
+  <li><strong>Tokens + globals</strong> — paste <code>tokens.css</code> into <code>app/globals.css</code>, wire Tailwind custom properties</li>
+  <li><strong>Auth</strong> — credentials provider with passphrase, middleware, private layout guard</li>
+  <li><strong>Root layout + sidebar</strong> — shell with sidebar, mobile drawer, theme toggle</li>
+  <li><strong>Portfolio page</strong> — static, no auth needed</li>
+  <li><strong>Blog</strong> — MDX files + <code>gray-matter</code> parsing, draft filtering by auth status</li>
+  <li><strong>Planner</strong> — time grid, quick-create dialog, daily/weekly/monthly views</li>
+  <li><strong>Notes</strong> — block editor, quick notes, notebooks (local first, then persist)</li>
+</ol>
+
+<hr class="divider" />
+
+<h2>3. Auth — Passphrase Only</h2>
+<p>No Google OAuth. A server-side credentials check using NextAuth. The passphrase lives in an environment variable — never in client code.</p>
+
+<pre><code>// lib/auth.ts
+import NextAuth from 'next-auth';
+import Credentials from 'next-auth/providers/credentials';
+
+export const { auth, handlers, signIn, signOut } = NextAuth({
+  providers: [
+    Credentials({
+      credentials: { passphrase: { type: 'password' } },
+      async authorize(credentials) {
+        // Constant-time comparison to prevent timing attacks
+        const { timingSafeEqual } = await import('node:crypto');
+        const secret = Buffer.from(process.env.ADMIN_PASSPHRASE!);
+        const input  = Buffer.from(credentials.passphrase as string);
+        if (secret.length === input.length && timingSafeEqual(secret, input)) {
+          return { id: '1', name: 'Sam Johnston', email: 'sam@samwich-analytics.com' };
+        }
+        return null;
+      },
+    }),
+  ],
+  pages: { signIn: '/login' },
+  session: { strategy: 'jwt', maxAge: 30 * 24 * 60 * 60 }, // 30 days
+});</code></pre>
+
+<pre><code>// middleware.ts — protect all private routes
+import { auth } from '@/lib/auth';
+export default auth((req) => {
+  const isPrivate = req.nextUrl.pathname.match(/^\/(planner|drafts|notes)/);
+  if (isPrivate && !req.auth) {
+    return Response.redirect(new URL('/login', req.url));
+  }
+});
+export const config = { matcher: ['/((?!api|_next|.*\\..*).*)'] };</code></pre>
+
+<pre><code># .env.local
+ADMIN_PASSPHRASE=your-long-random-passphrase-here
+NEXTAUTH_SECRET=another-random-secret
+NEXTAUTH_URL=http://localhost:3000</code></pre>
+
+<p><strong>Security notes:</strong></p>
+<ul>
+  <li>Use <code>timingSafeEqual</code> to prevent timing-based passphrase enumeration</li>
+  <li>Use a passphrase of 20+ characters (e.g. from <code>openssl rand -base64 32</code>)</li>
+  <li>Rate limiting: add <code>@upstash/ratelimit</code> on the auth endpoint — 5 attempts per 10 minutes per IP</li>
+  <li>HTTPS-only in production — Vercel handles this automatically</li>
+  <li>JWT sessions expire in 30 days — adjust <code>maxAge</code> as preferred</li>
+</ul>
+
+<hr class="divider" />
+
+<h2>4. Design Token → Tailwind Mapping</h2>
+<p>Use CSS custom properties as Tailwind's token source. In <code>tailwind.config.ts</code>:</p>
+<pre><code>// tailwind.config.ts
+import type { Config } from 'tailwindcss';
+export default {
+  content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}'],
+  theme: {
+    extend: {
+      colors: {
+        bg:        'var(--bg)',
+        'bg-alt':  'var(--bg-alt)',
+        'bg-hover':'var(--bg-hover)',
+        accent:    'var(--accent)',
+        'accent-hover': 'var(--accent-hover)',
+        'accent-light': 'var(--accent-light)',
+        gold:      'var(--accent-gold)',
+        'text-primary':   'var(--text-primary)',
+        'text-secondary': 'var(--text-secondary)',
+        'text-muted':     'var(--text-muted)',
+      },
+      fontFamily: { ui: ['Poppins', 'sans-serif'], editorial: ['Fraunces', 'serif'] },
+      borderRadius: { sm:'4px', md:'8px', lg:'12px', xl:'16px', full:'9999px' },
+      boxShadow: { sm:'var(--shadow-sm)', DEFAULT:'var(--shadow)', lg:'var(--shadow-lg)' },
+      transitionDuration: { fast:'150ms', normal:'200ms', slow:'250ms' },
+    },
+  },
+  darkMode: ['selector', '[data-theme="dark"]'],
+} satisfies Config;</code></pre>
+
+<hr class="divider" />
+
+<h2>5. Blog — MDX Setup</h2>
+<pre><code>// lib/blog.ts
+import fs from 'fs';
+import path from 'path';
+import matter from 'gray-matter';
+
+const BLOG_DIR = path.join(process.cwd(), 'content/blog');
+
+export type Post = {
+  slug: string; title: string; date: string;
+  description: string; tags: string[]; isDraft: boolean;
+};
+
+export function getAllPosts(includesDrafts = false): Post[] {
+  return fs.readdirSync(BLOG_DIR)
+    .filter(f => f.endsWith('.mdx'))
+    .map(f => {
+      const { data } = matter(fs.readFileSync(path.join(BLOG_DIR, f), 'utf8'));
+      return { slug: f.replace('.mdx',''), ...data } as Post;
+    })
+    .filter(p => includesDrafts || !p.isDraft)
+    .sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+}</code></pre>
+
+<pre><code>// content/blog/dbt-incremental-models.mdx
+---
+title: Why I Rewrote All My dbt Models as Incremental
+date: 2026-04-22
+description: Full-refresh models were killing our Snowflake bill.
+tags: [dbt, SQL, Snowflake]
+isDraft: false
+---
+
+Your markdown content here...</code></pre>
+
+<hr class="divider" />
+
+<h2>6. Notes — Persistence Strategy</h2>
+<table>
+  <thead><tr><th>Phase</th><th>Storage</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td>Phase 1 (now)</td><td>localStorage (client)</td><td>Zero backend, instant start</td></tr>
+    <tr><td>Phase 2</td><td>Vercel KV (Redis)</td><td>Syncs across devices, server-side, fast</td></tr>
+    <tr><td>Phase 3</td><td>PlanetScale / Turso (SQLite)</td><td>Relational structure for notebooks/pages</td></tr>
+  </tbody>
+</table>
+
+<p>Phase 1 localStorage schema:</p>
+<pre><code>// lib/notes.ts (client-side, localStorage)
+export type BlockType = 'p'|'h1'|'h2'|'h3'|'bullet'|'checkbox'|'divider'|'table';
+
+export interface Block {
+  id: string; type: BlockType;
+  content: string; checked?: boolean;
+}
+
+export interface QuickNote {
+  id: string; title: string;
+  blocks: Block[]; createdAt: string; // ISO string
+}
+
+export interface NotePage {
+  id: string; title: string;
+  blocks: Block[]; createdAt: string; updatedAt: string;
+  parentId?: string; // notebook or section id
+}
+
+export interface Notebook {
+  id: string; title: string; icon: string;
+  description: string; color: string;
+  children: NotePage[];
+  createdAt: string;
+}
+
+const KEYS = { quickNotes: 'sw_qn', notebooks: 'sw_nb' };
+
+export const notesStorage = {
+  getQuickNotes: (): QuickNote[] =>
+    JSON.parse(localStorage.getItem(KEYS.quickNotes) || '[]'),
+  saveQuickNotes: (notes: QuickNote[]) =>
+    localStorage.setItem(KEYS.quickNotes, JSON.stringify(notes)),
+  getNotebooks: (): Notebook[] =>
+    JSON.parse(localStorage.getItem(KEYS.notebooks) || '[]'),
+  saveNotebooks: (nbs: Notebook[]) =>
+    localStorage.setItem(KEYS.notebooks, JSON.stringify(nbs)),
+};</code></pre>
+
+<hr class="divider" />
+
+<h2>7. Planner — Calendar Integration (Phase 2)</h2>
+<p>When ready to connect Google Calendar:</p>
+<pre><code>// Add to NextAuth providers in lib/auth.ts
+import Google from 'next-auth/providers/google';
+// ...
+providers: [
+  Credentials({ /* passphrase — keep this */ }),
+  Google({
+    clientId: process.env.GOOGLE_CLIENT_ID!,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    authorization: {
+      params: { scope: 'openid email profile https://www.googleapis.com/auth/calendar.readonly' }
+    },
+  }),
+],</code></pre>
+<p>Calendar events fetch in the planner page:</p>
+<pre><code>// app/(private)/planner/page.tsx
+import { google } from 'googleapis';
+
+async function getCalendarEvents(accessToken: string, date: string) {
+  const calendar = google.calendar({ version: 'v3', auth: /* oauth2Client */ });
+  const res = await calendar.events.list({
+    calendarId: 'primary',
+    timeMin: new Date(date + 'T00:00:00').toISOString(),
+    timeMax: new Date(date + 'T23:59:59').toISOString(),
+    singleEvents: true, orderBy: 'startTime',
+  });
+  return res.data.items ?? [];
+}</code></pre>
+<p>Visual treatment: calendar events render as <strong>semi-transparent blocks</strong> behind your manual time blocks. Different stroke style (dashed border) distinguishes imported events from created blocks.</p>
+
+<hr class="divider" />
+
+<h2>8. Notes — Next Improvements</h2>
+
+<div class="card">
+  <h3>Inline formatting (implement first)</h3>
+  <p>Detect markdown shortcuts on keystroke using <code>onKeyUp</code> in the Block component:</p>
+  <pre><code>// Trigger bold on ** ** wrap
+if (e.key === ' ' || e.key === 'Enter') {
+  const text = el.innerText;
+  const bold    = text.replace(/\*\*(.+?)\*\*/g, '**$1**'); // visual highlight
+  const italic  = text.replace(/_(.+?)_/g, '_$1_');
+  const strike  = text.replace(/~~(.+?)~~/g, '~~$1~~');
+  const code    = text.replace(/`(.+?)`/g, '`$1`');
+  // Then render formatted HTML on blur (already implemented in prototype)
+}</code></pre>
+  <p>Better UX: on blur, switch from contenteditable to a rendered <code>&lt;div&gt;</code> with parsed HTML. On click, switch back to contenteditable with raw markdown source. This is the pattern the prototype already uses — wire it up properly with a <code>useFocused</code> hook per block.</p>
+</div>
+
+<div class="card">
+  <h3>Drag to reorder blocks</h3>
+  <p>Use <code>@dnd-kit/core</code> — it handles keyboard accessibility and touch:</p>
+  <pre><code>npm install @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities</code></pre>
+  <p>Wrap each block in <code>&lt;SortableItem&gt;</code>. Show a 6-dot drag handle on hover (left side, same pattern as Notion). Hide handles when the block is focused for editing.</p>
+</div>
+
+<div class="card">
+  <h3>Linked pages</h3>
+  <p>Add a <code>page</code> block type. Type <code>[[</code> to trigger a search-as-you-type picker of existing notes. Store as <code>{ type: 'page', noteId: string, title: string }</code>. Render as an olive underlined link that navigates to the referenced note.</p>
+</div>
+
+<div class="card">
+  <h3>Full-text search</h3>
+  <p>For Phase 1 (localStorage): build a client-side index using <code>Fuse.js</code> — fuzzy search across all block content.</p>
+  <pre><code>npm install fuse.js</code></pre>
+  <p>For Phase 2+ (database): use Postgres full-text search (<code>tsvector</code>) or Typesense for instant results.</p>
+</div>
+
+<div class="card">
+  <h3>Notion-style enhancements to add</h3>
+  <ul>
+    <li><strong>Slash menu additions:</strong> Callout block (icon + colored background), Toggle (collapsible section), Quote, Code block (with language selector + syntax highlight via <code>shiki</code>), Image, Embed</li>
+    <li><strong>Block comments</strong> — highlight text, click to add a comment (great for self-review)</li>
+    <li><strong>Page icons</strong> — emoji or custom SVG per notebook/page, set from a picker</li>
+    <li><strong>Cover images</strong> — full-width banner at top of note pages</li>
+    <li><strong>Table of contents</strong> — auto-generated from H1–H3 blocks, anchored links</li>
+    <li><strong>Word count + reading time</strong> — shown in the page footer</li>
+    <li><strong>Export to PDF / Markdown</strong> — for sharing notes outside the workspace</li>
+  </ul>
+</div>
+
+<hr class="divider" />
+
+<h2>9. Dependencies</h2>
+<table>
+  <thead><tr><th>Package</th><th>Use</th><th>Priority</th></tr></thead>
+  <tbody>
+    <tr><td>next-auth</td><td>Credentials auth + future Google Calendar</td><td><span class="priority-1">Now</span></td></tr>
+    <tr><td>gray-matter</td><td>MDX frontmatter parsing for blog</td><td><span class="priority-1">Now</span></td></tr>
+    <tr><td>@next/mdx</td><td>MDX rendering for blog posts</td><td><span class="priority-1">Now</span></td></tr>
+    <tr><td>lucide-react</td><td>Icon library (matches prototype icons)</td><td><span class="priority-1">Now</span></td></tr>
+    <tr><td>@upstash/ratelimit</td><td>Login rate limiting</td><td><span class="priority-2">Soon</span></td></tr>
+    <tr><td>@dnd-kit/sortable</td><td>Block drag-to-reorder in notes</td><td><span class="priority-2">Soon</span></td></tr>
+    <tr><td>fuse.js</td><td>Client-side fuzzy search for notes</td><td><span class="priority-2">Soon</span></td></tr>
+    <tr><td>shiki</td><td>Syntax highlighting in code blocks</td><td><span class="priority-2">Soon</span></td></tr>
+    <tr><td>googleapis</td><td>Google Calendar API</td><td><span class="priority-3">Later</span></td></tr>
+    <tr><td>@vercel/kv</td><td>Notes persistence (Redis)</td><td><span class="priority-3">Later</span></td></tr>
+    <tr><td>framer-motion</td><td>Sidebar transitions, block animations</td><td><span class="priority-3">Later</span></td></tr>
+  </tbody>
+</table>
+
+<hr class="divider" />
+
+<h2>10. Deployment</h2>
+<ol>
+  <li>Push to GitHub (<code>github.com/samwich-j/samwich-analytics</code>)</li>
+  <li>Import to Vercel — auto-detects Next.js</li>
+  <li>Set environment variables in Vercel dashboard: <code>ADMIN_PASSPHRASE</code>, <code>NEXTAUTH_SECRET</code>, <code>NEXTAUTH_URL</code></li>
+  <li>Custom domain: <code>samwich-analytics.com</code> → add in Vercel → DNS CNAME to <code>cname.vercel-dns.com</code></li>
+  <li>Enable Vercel Analytics for portfolio visitor tracking (free tier)</li>
+</ol>
+
+<hr class="divider" />
+
+<p style="color:var(--text-muted);font-size:0.8rem;text-align:center;">Samwich Analytics · Design prototype by Claude · April 2026</p>
+
+</body>
+</html>
