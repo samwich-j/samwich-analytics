@@ -239,8 +239,6 @@ function DailyView({ blocks, setBlocks, hourHeight }: { blocks: Block[]; setBloc
   const gridRef = useRef<HTMLDivElement>(null);
 
   function handleGridClick(e: React.MouseEvent) {
-    const el = e.target as HTMLElement;
-    if (el !== gridRef.current && !el.classList.contains('grid-row')) return;
     const rect = gridRef.current!.getBoundingClientRect();
     const y = e.clientY - rect.top;
     const h = Math.floor(y / hourHeight) + startHour;

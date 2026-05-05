@@ -102,20 +102,19 @@ function SlashMenu({ query, onSelect, position }: { query: string; onSelect: (t:
 
 function Block({ block, onChange, onEnter, onDelete, onFocus, focused }: {
   block: NoteBlock; onChange: (c: Partial<NoteBlock>) => void;
-  onEnter: () => void; onDelete: () => void; onFocus: () => void; focused: boolean;
+  onEnter: (type?: string) => void; onDelete: () => void; onFocus: () => void; focused: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [slashMenu, setSlashMenu] = useState<{ x: number; y: number; query: string } | null>(null);
   const [localFocused, setLocalFocused] = useState(false);
+  const [hovering, setHovering] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  // Set initial content on mount — never pass React children to contentEditable
-  // (children cause React to reset cursor position on every re-render)
   useEffect(() => {
     if (ref.current) ref.current.innerText = block.content;
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Move cursor to end when programmatically focused (new block inserted)
   useEffect(() => {
     if (focused && ref.current) {
       ref.current.focus();
@@ -124,6 +123,13 @@ function Block({ block, onChange, onEnter, onDelete, onFocus, focused }: {
       s?.removeAllRanges(); s?.addRange(r);
     }
   }, [focused]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const close = () => setMenuOpen(false);
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, [menuOpen]);
 
   function handleInput(e: React.FormEvent<HTMLDivElement>) {
     const val = (e.currentTarget as HTMLDivElement).innerText;
@@ -137,7 +143,7 @@ function Block({ block, onChange, onEnter, onDelete, onFocus, focused }: {
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!slashMenu) onEnter(); }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!slashMenu) onEnter(block.type); }
     if (e.key === 'Backspace' && (ref.current?.innerText === '' || ref.current?.innerText === '\n')) { e.preventDefault(); onDelete(); }
   }
 
@@ -157,12 +163,10 @@ function Block({ block, onChange, onEnter, onDelete, onFocus, focused }: {
     checkbox: { fontSize: '1rem', lineHeight: 1.75, color: 'var(--text-primary)' },
   };
 
-  if (block.type === 'divider') return <div style={{ padding: '8px 0' }}><hr style={{ border: 'none', borderTop: '1px solid var(--border)' }} /></div>;
-
   const style = blockStyles[block.type] || blockStyles.p;
   const placeholder = block.type === 'p' ? "Type '/' for commands…" : block.type.toUpperCase();
 
-  const editable = (
+  const editable = block.type !== 'divider' ? (
     <div ref={ref} contentEditable suppressContentEditableWarning
       onInput={handleInput} onKeyDown={handleKeyDown}
       onFocus={() => { setLocalFocused(true); onFocus(); }}
@@ -170,39 +174,92 @@ function Block({ block, onChange, onEnter, onDelete, onFocus, focused }: {
       style={{ outline: 'none', wordBreak: 'break-word', ...style }}
       data-placeholder={placeholder}
     />
-  );
+  ) : null;
 
-  const rendered = (
+  const rendered = block.type !== 'divider' ? (
     <div
       dangerouslySetInnerHTML={{ __html: parseInlineMd(block.content) || `<span style="opacity:0.35">${placeholder}</span>` }}
       onClick={() => { setLocalFocused(true); onFocus(); }}
       style={{ cursor: 'text', outline: 'none', wordBreak: 'break-word', ...style }}
     />
-  );
+  ) : null;
 
-  if (block.type === 'checkbox') return (
-    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '2px 0' }}>
-      <div onClick={() => onChange({ checked: !block.checked })} style={{ width: 18, height: 18, borderRadius: 4, border: '2px solid var(--accent)', background: block.checked ? 'var(--accent)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, marginTop: 4, transition: 'all var(--trans-fast)' }}>
-        {block.checked && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>}
+  let innerContent: React.ReactNode;
+  if (block.type === 'divider') {
+    innerContent = <hr style={{ border: 'none', borderTop: '1px solid var(--border)' }} />;
+  } else if (block.type === 'checkbox') {
+    innerContent = (
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '2px 0' }}>
+        <div onClick={() => onChange({ checked: !block.checked })} style={{ width: 18, height: 18, borderRadius: 4, border: '2px solid var(--accent)', background: block.checked ? 'var(--accent)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, marginTop: 4, transition: 'all var(--trans-fast)' }}>
+          {block.checked && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>}
+        </div>
+        <div style={{ flex: 1, textDecoration: block.checked ? 'line-through' : 'none', color: block.checked ? 'var(--text-muted)' : 'var(--text-primary)', opacity: block.checked ? 0.65 : 1 }}>
+          {localFocused || focused ? editable : rendered}
+        </div>
       </div>
-      <div style={{ flex: 1, textDecoration: block.checked ? 'line-through' : 'none', color: block.checked ? 'var(--text-muted)' : 'var(--text-primary)', opacity: block.checked ? 0.65 : 1 }}>
-        {localFocused || focused ? editable : rendered}
+    );
+  } else if (block.type === 'bullet') {
+    innerContent = (
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '1px 0' }}>
+        <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', marginTop: 11, flexShrink: 0 }} />
+        <div style={{ flex: 1 }}>{localFocused || focused ? editable : rendered}</div>
       </div>
-      {slashMenu && <SlashMenu query={slashMenu.query} onSelect={handleSlashSelect} position={slashMenu} />}
-    </div>
-  );
-
-  if (block.type === 'bullet') return (
-    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '1px 0' }}>
-      <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', marginTop: 11, flexShrink: 0 }} />
-      <div style={{ flex: 1 }}>{localFocused || focused ? editable : rendered}</div>
-      {slashMenu && <SlashMenu query={slashMenu.query} onSelect={handleSlashSelect} position={slashMenu} />}
-    </div>
-  );
+    );
+  } else {
+    innerContent = (localFocused || focused ? editable : rendered);
+  }
 
   return (
-    <div style={{ position: 'relative' }}>
-      {localFocused || focused ? editable : rendered}
+    <div
+      style={{ position: 'relative', padding: block.type === 'divider' ? '8px 0' : undefined }}
+      onMouseEnter={() => setHovering(true)}
+      onMouseLeave={() => setHovering(false)}
+    >
+      {block.type !== 'divider' && (
+        <div style={{
+          position: 'absolute', left: -30, top: block.type === 'h1' ? 20 : block.type === 'h2' ? 16 : 2,
+          opacity: hovering || menuOpen ? 1 : 0, transition: 'opacity 0.12s',
+          pointerEvents: hovering || menuOpen ? 'auto' : 'none',
+        }}>
+          <button
+            onMouseDown={e => { e.stopPropagation(); e.preventDefault(); setMenuOpen(m => !m); }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '2px 3px', borderRadius: 4, display: 'flex', alignItems: 'center', lineHeight: 1 }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <circle cx="7" cy="5" r="2"/><circle cx="7" cy="12" r="2"/><circle cx="7" cy="19" r="2"/>
+              <circle cx="15" cy="5" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="15" cy="19" r="2"/>
+            </svg>
+          </button>
+        </div>
+      )}
+      {menuOpen && (
+        <div onMouseDown={e => e.stopPropagation()} style={{ position: 'absolute', left: -30, top: '100%', zIndex: 600, background: 'var(--bg-alt)', borderRadius: 10, boxShadow: 'var(--shadow)', border: '1px solid var(--border)', width: 200, padding: 4 }}>
+          <div style={{ fontSize: '0.65rem', fontWeight: 600, color: 'var(--text-muted)', padding: '2px 8px 4px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Turn into</div>
+          {SLASH_COMMANDS.filter(c => c.type !== 'divider').map(cmd => (
+            <div key={cmd.type}
+              onMouseDown={e => { e.preventDefault(); onChange({ type: cmd.type }); setMenuOpen(false); }}
+              style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 8px', borderRadius: 6, cursor: 'pointer', background: block.type === cmd.type ? 'var(--accent-lighter)' : 'transparent', fontSize: '0.82rem', color: 'var(--text-secondary)', transition: 'background var(--trans-fast)' }}
+              onMouseEnter={e => { if (block.type !== cmd.type) (e.currentTarget as HTMLDivElement).style.background = 'var(--bg-hover)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = block.type === cmd.type ? 'var(--accent-lighter)' : 'transparent'; }}
+            >
+              <span style={{ width: 20, textAlign: 'center', fontWeight: 700, color: 'var(--text-muted)', fontSize: '0.78rem' }}>{cmd.icon}</span>
+              {cmd.label}
+            </div>
+          ))}
+          <div style={{ borderTop: '1px solid var(--border)', marginTop: 4, paddingTop: 4 }}>
+            <div
+              onMouseDown={e => { e.preventDefault(); onDelete(); setMenuOpen(false); }}
+              style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 8px', borderRadius: 6, cursor: 'pointer', fontSize: '0.82rem', color: '#e05c5c', transition: 'background var(--trans-fast)' }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+              Delete block
+            </div>
+          </div>
+        </div>
+      )}
+      {innerContent}
       {slashMenu && <SlashMenu query={slashMenu.query} onSelect={handleSlashSelect} position={slashMenu} />}
     </div>
   );
@@ -210,11 +267,15 @@ function Block({ block, onChange, onEnter, onDelete, onFocus, focused }: {
 
 function BlockEditor({ blocks, setBlocks, title, setTitle }: { blocks: NoteBlock[]; setBlocks: (b: NoteBlock[]) => void; title: string; setTitle: (t: string) => void }) {
   const [focusedId, setFocusedId] = useState<string | null>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (titleRef.current) titleRef.current.innerText = title; }, []);
 
   function updateBlock(id: string, changes: Partial<NoteBlock>) { setBlocks(blocks.map(b => b.id === id ? { ...b, ...changes } : b)); }
-  function insertAfter(id: string) {
+  function insertAfter(id: string, type?: string) {
     const idx = blocks.findIndex(b => b.id === id);
-    const nb = { id: makeId(), type: 'p', content: '' };
+    const inheritType = (type === 'bullet' || type === 'checkbox') ? type : 'p';
+    const nb: NoteBlock = { id: makeId(), type: inheritType, content: '', checked: false };
     const next = [...blocks]; next.splice(idx + 1, 0, nb);
     setTimeout(() => setFocusedId(nb.id), 10);
     setBlocks(next);
@@ -229,18 +290,17 @@ function BlockEditor({ blocks, setBlocks, title, setTitle }: { blocks: NoteBlock
 
   return (
     <div style={{ maxWidth: 680, margin: '0 auto', padding: '40px 32px 80px' }}>
-      <div contentEditable suppressContentEditableWarning
+      <div ref={titleRef} contentEditable suppressContentEditableWarning
         onInput={e => setTitle((e.currentTarget as HTMLDivElement).innerText)}
         style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1.2, color: 'var(--text-secondary)', outline: 'none', marginBottom: 32, minHeight: '2.4rem', wordBreak: 'break-word' }}
-        data-placeholder="Untitled">
-        {title}
-      </div>
+        data-placeholder="Untitled"
+      />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         {blocks.map(block => (
           <Block key={block.id} block={block} focused={focusedId === block.id}
             onFocus={() => setFocusedId(block.id)}
             onChange={ch => updateBlock(block.id, ch)}
-            onEnter={() => insertAfter(block.id)}
+            onEnter={type => insertAfter(block.id, type)}
             onDelete={() => deleteBlock(block.id)}
           />
         ))}
