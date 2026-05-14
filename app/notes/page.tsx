@@ -238,7 +238,7 @@ function Block({ block, onChange, onEnter, onDelete, onFocus, focused, index, on
       {isDragOver && <div style={{ position: 'absolute', top: -1, left: 0, right: 0, height: 2, background: 'var(--accent)', borderRadius: 1, zIndex: 10 }} />}
       {block.type !== 'divider' && (
         <div style={{
-          position: 'absolute', left: -30, top: block.type === 'h1' ? 20 : block.type === 'h2' ? 16 : 2,
+          position: 'absolute', left: 2, top: block.type === 'h1' ? 20 : block.type === 'h2' ? 16 : 2,
           opacity: hovering || menuOpen ? 1 : 0, transition: 'opacity 0.12s',
           pointerEvents: hovering || menuOpen ? 'auto' : 'none',
         }}>
@@ -257,7 +257,7 @@ function Block({ block, onChange, onEnter, onDelete, onFocus, focused, index, on
         </div>
       )}
       {menuOpen && (
-        <div onMouseDown={e => e.stopPropagation()} style={{ position: 'absolute', left: -30, top: '100%', zIndex: 600, background: 'var(--bg-alt)', borderRadius: 10, boxShadow: 'var(--shadow)', border: '1px solid var(--border)', width: 200, padding: 4 }}>
+        <div onMouseDown={e => e.stopPropagation()} style={{ position: 'absolute', left: 2, top: '100%', zIndex: 600, background: 'var(--bg-alt)', borderRadius: 10, boxShadow: 'var(--shadow)', border: '1px solid var(--border)', width: 200, padding: 4 }}>
           <div style={{ fontSize: '0.65rem', fontWeight: 600, color: 'var(--text-muted)', padding: '2px 8px 4px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Turn into</div>
           {SLASH_COMMANDS.filter(c => c.type !== 'divider').map(cmd => (
             <div key={cmd.type}
@@ -331,10 +331,11 @@ function BlockEditor({ blocks, setBlocks, title, setTitle }: { blocks: NoteBlock
     >
       <div ref={titleRef} contentEditable suppressContentEditableWarning
         onInput={e => setTitle((e.currentTarget as HTMLDivElement).innerText)}
+        onFocus={() => setFocusedId(null)}
         onKeyDown={e => {
           if (e.key === 'Enter') {
             e.preventDefault();
-            if (blocks.length > 0) setFocusedId(blocks[0].id);
+            if (blocks.length > 0) setTimeout(() => setFocusedId(blocks[0].id), 0);
           }
         }}
         style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1.2, color: 'var(--text-secondary)', outline: 'none', marginBottom: 32, minHeight: '2.4rem', wordBreak: 'break-word' }}
