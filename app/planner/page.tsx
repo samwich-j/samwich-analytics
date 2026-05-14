@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { Icon } from '@/components/ui/Icon';
 
 const CATEGORIES = [
@@ -12,13 +12,20 @@ const CATEGORIES = [
   { id: 'free',     label: 'Free Time', catKey: 'free' },
 ];
 
-const SAMPLE_BLOCKS = [
-  { id: 1, title: 'Deep Work: Dashboard Build', start: 9,    end: 11,   category: 'work' },
-  { id: 2, title: 'SQL Interview Prep',          start: 11,   end: 12,   category: 'study' },
-  { id: 3, title: 'Lunch + Walk',                start: 12,   end: 13,   category: 'health' },
-  { id: 4, title: 'Client Meeting — Q2 Review',  start: 14,   end: 15,   category: 'work' },
-  { id: 5, title: 'dbt model refactor',           start: 15.5, end: 17,   category: 'work' },
-  { id: 6, title: 'Reading',                      start: 20,   end: 21,   category: 'free' },
+const REPEAT_OPTIONS = [
+  { value: 'none', label: 'None' },
+  { value: 'daily', label: 'Daily' },
+  { value: 'weekly', label: 'Weekly' },
+  { value: 'monthly', label: 'Monthly' },
+];
+
+const SAMPLE_BLOCKS: Block[] = [
+  { id: 1, title: 'Deep Work: Dashboard Build', start: 9,    end: 11,   category: 'work', repeat: 'none' },
+  { id: 2, title: 'SQL Interview Prep',          start: 11,   end: 12,   category: 'study', repeat: 'none' },
+  { id: 3, title: 'Lunch + Walk',                start: 12,   end: 13,   category: 'health', repeat: 'none' },
+  { id: 4, title: 'Client Meeting — Q2 Review',  start: 14,   end: 15,   category: 'work', repeat: 'none' },
+  { id: 5, title: 'dbt model refactor',           start: 15.5, end: 17,   category: 'work', repeat: 'none' },
+  { id: 6, title: 'Reading',                      start: 20,   end: 21,   category: 'free', repeat: 'none' },
 ];
 
 const HOURS = Array.from({ length: 18 }, (_, i) => i + 6);
@@ -37,16 +44,148 @@ function formatTime(h: number) {
   return `${displayHr}:${min.toString().padStart(2, '0')} ${suffix}`;
 }
 
-interface Block { id: number; title: string; start: number; end: number; category: string; }
+interface Block { id: number; title: string; start: number; end: number; category: string; repeat: string; }
 
-function TimeBlock({ block, hourHeight, startHour, onClick }: { block: Block; hourHeight: number; startHour: number; onClick: () => void }) {
+// ── Clock Picker ──────────────────────────────────────────────
+
+function ClockPicker({ value, onChange }: { value: number; onChange: (h: number) => void }) {
+  const [mode, setMode] = useState<'hour' | 'minute'>('hour');
+  const hr = Math.floor(value);
+  const min = Math.round((value - hr) * 60);
+  const [period, setPeriod] = useState<'am' | 'pm'>(hr >= 12 ? 'pm' : 'am');
+  const displayHr = hr > 12 ? hr - 12 : hr === 0 ? 12 : hr;
+
+  function selectHour(h: number) {
+    const h24 = period === 'pm' ? (h === 12 ? 12 : h + 12) : (h === 12 ? 0 : h);
+    onChange(h24 + min / 60);
+    setMode('minute');
+  }
+
+  function selectMinute(m: number) {
+    const h24 = period === 'pm' ? (displayHr === 12 ? 12 : displayHr + 12) : (displayHr === 12 ? 0 : displayHr);
+    onChange(h24 + m / 60);
+  }
+
+  function togglePeriod(p: 'am' | 'pm') {
+    setPeriod(p);
+    const h12 = displayHr;
+    const h24 = p === 'pm' ? (h12 === 12 ? 12 : h12 + 12) : (h12 === 12 ? 0 : h12);
+    onChange(h24 + min / 60);
+  }
+
+  const numbers = mode === 'hour' ? [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] : [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
+  const selected = mode === 'hour' ? displayHr : min;
+  const radius = 80;
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+      <div style={{ display: 'flex', gap: 4, alignItems: 'center', marginBottom: 4 }}>
+        <button onClick={() => setMode('hour')} style={{ fontSize: '1.4rem', fontWeight: 700, color: mode === 'hour' ? 'var(--accent)' : 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-ui)', padding: '2px 4px' }}>
+          {displayHr.toString().padStart(2, '0')}
+        </button>
+        <span style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--text-muted)' }}>:</span>
+        <button onClick={() => setMode('minute')} style={{ fontSize: '1.4rem', fontWeight: 700, color: mode === 'minute' ? 'var(--accent)' : 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-ui)', padding: '2px 4px' }}>
+          {min.toString().padStart(2, '0')}
+        </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 1, marginLeft: 6 }}>
+          {(['am', 'pm'] as const).map(p => (
+            <button key={p} onClick={() => togglePeriod(p)} style={{ fontSize: '0.6rem', fontWeight: 600, padding: '1px 6px', borderRadius: 3, border: 'none', cursor: 'pointer', fontFamily: 'var(--font-ui)', textTransform: 'uppercase', background: period === p ? 'var(--accent)' : 'var(--bg)', color: period === p ? '#fff' : 'var(--text-muted)' }}>{p}</button>
+          ))}
+        </div>
+      </div>
+      <div style={{ position: 'relative', width: radius * 2 + 40, height: radius * 2 + 40, borderRadius: '50%', background: 'var(--bg)', border: '1px solid var(--border)' }}>
+        <div style={{ position: 'absolute', left: '50%', top: '50%', width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', transform: 'translate(-50%, -50%)', zIndex: 2 }} />
+        {numbers.map((n, i) => {
+          const angle = (i * 30 - 90) * (Math.PI / 180);
+          const x = Math.cos(angle) * radius + radius + 20;
+          const y = Math.sin(angle) * radius + radius + 20;
+          const isSelected = n === selected;
+          return (
+            <button key={n} onClick={() => mode === 'hour' ? selectHour(n) : selectMinute(n)} style={{
+              position: 'absolute', left: x - 16, top: y - 16, width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '0.78rem', fontWeight: isSelected ? 700 : 400, fontFamily: 'var(--font-ui)',
+              background: isSelected ? 'var(--accent)' : 'transparent', color: isSelected ? '#fff' : 'var(--text-primary)',
+              border: 'none', cursor: 'pointer', transition: 'all 0.15s',
+              zIndex: 3,
+            }}>{mode === 'minute' ? n.toString().padStart(2, '0') : n}</button>
+          );
+        })}
+        {(() => {
+          const selIdx = numbers.indexOf(selected);
+          if (selIdx === -1) return null;
+          const angle = (selIdx * 30 - 90) * (Math.PI / 180);
+          const x2 = Math.cos(angle) * radius + radius + 20;
+          const y2 = Math.sin(angle) * radius + radius + 20;
+          const cx = radius + 20, cy = radius + 20;
+          return <line x1={cx} y1={cy} x2={x2} y2={y2} stroke="var(--accent)" strokeWidth="2" style={{ position: 'absolute', left: 0, top: 0 }} />;
+        })()}
+        <svg width={radius * 2 + 40} height={radius * 2 + 40} style={{ position: 'absolute', left: 0, top: 0, pointerEvents: 'none' }}>
+          {(() => {
+            const selIdx = numbers.indexOf(selected);
+            if (selIdx === -1) return null;
+            const angle = (selIdx * 30 - 90) * (Math.PI / 180);
+            const x2 = Math.cos(angle) * radius + radius + 20;
+            const y2 = Math.sin(angle) * radius + radius + 20;
+            const cx = radius + 20, cy = radius + 20;
+            return <line x1={cx} y1={cy} x2={x2} y2={y2} stroke="var(--accent)" strokeWidth="2" />;
+          })()}
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+// ── Time Block ────────────────────────────────────────────────
+
+function TimeBlock({ block, hourHeight, startHour, onClick, onUpdate }: { block: Block; hourHeight: number; startHour: number; onClick: () => void; onUpdate: (b: Block) => void }) {
   const [hovered, setHovered] = useState(false);
-  const top = (block.start - startHour) * hourHeight;
+  const [dragging, setDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState(0);
+  const dragRef = useRef<{ y: number; start: number; end: number } | null>(null);
+
+  const top = (block.start - startHour) * hourHeight + (dragging ? dragOffset : 0);
   const height = (block.end - block.start) * hourHeight;
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    dragRef.current = { y: e.clientY, start: block.start, end: block.end };
+
+    function handleMove(me: MouseEvent) {
+      if (!dragRef.current) return;
+      const dy = me.clientY - dragRef.current.y;
+      if (Math.abs(dy) > 4) {
+        setDragging(true);
+        setDragOffset(dy);
+      }
+    }
+
+    function handleUp(me: MouseEvent) {
+      document.removeEventListener('mousemove', handleMove);
+      document.removeEventListener('mouseup', handleUp);
+      if (!dragRef.current) return;
+      const dy = me.clientY - dragRef.current.y;
+      if (Math.abs(dy) <= 4) {
+        onClick();
+      } else {
+        const hourDelta = Math.round((dy / hourHeight) * 2) / 2;
+        const duration = dragRef.current.end - dragRef.current.start;
+        let newStart = dragRef.current.start + hourDelta;
+        newStart = Math.max(0, Math.min(24 - duration, newStart));
+        onUpdate({ ...block, start: newStart, end: newStart + duration });
+      }
+      setDragging(false);
+      setDragOffset(0);
+      dragRef.current = null;
+    }
+
+    document.addEventListener('mousemove', handleMove);
+    document.addEventListener('mouseup', handleUp);
+  }, [block, hourHeight, onClick, onUpdate]);
+
   const tall = height > 50;
   return (
     <div
-      onClick={e => { e.stopPropagation(); onClick(); }}
+      onMouseDown={handleMouseDown}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
@@ -54,11 +193,12 @@ function TimeBlock({ block, hourHeight, startHour, onClick }: { block: Block; ho
         borderRadius: 6,
         background: `var(--cat-${block.category}-bg)`,
         color: `var(--cat-${block.category}-text)`,
-        padding: '4px 8px', cursor: 'pointer', userSelect: 'none',
-        boxShadow: hovered ? '0 3px 12px rgba(0,0,0,0.15)' : '0 1px 3px rgba(0,0,0,0.08)',
-        transition: 'box-shadow var(--trans-fast), transform var(--trans-fast)',
-        transform: hovered ? 'scale(1.01)' : 'scale(1)',
-        overflow: 'hidden', zIndex: 2,
+        padding: '4px 8px', cursor: dragging ? 'grabbing' : 'grab', userSelect: 'none',
+        boxShadow: dragging ? '0 6px 20px rgba(0,0,0,0.25)' : hovered ? '0 3px 12px rgba(0,0,0,0.15)' : '0 1px 3px rgba(0,0,0,0.08)',
+        transition: dragging ? 'none' : 'box-shadow var(--trans-fast), transform var(--trans-fast)',
+        transform: dragging ? 'scale(1.03)' : hovered ? 'scale(1.01)' : 'scale(1)',
+        overflow: 'hidden', zIndex: dragging ? 100 : 2,
+        opacity: dragging ? 0.9 : 1,
       }}>
       <div style={{ fontSize: 13, fontWeight: 500, lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
         {block.title}
@@ -72,6 +212,29 @@ function TimeBlock({ block, hourHeight, startHour, onClick }: { block: Block; ho
   );
 }
 
+// ── Repeat Picker ─────────────────────────────────────────────
+
+function RepeatPicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <div style={{ fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.06em', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 8 }}>Repeat</div>
+      <div style={{ display: 'flex', gap: 4 }}>
+        {REPEAT_OPTIONS.map(opt => (
+          <button key={opt.value} onClick={() => onChange(opt.value)} style={{
+            padding: '4px 12px', borderRadius: 'var(--radius-full)', fontSize: '0.75rem', fontWeight: 500,
+            cursor: 'pointer', border: value === opt.value ? '1.5px solid var(--accent)' : '1.5px solid var(--border)',
+            background: value === opt.value ? 'var(--accent-lighter)' : 'var(--bg)',
+            color: value === opt.value ? 'var(--accent)' : 'var(--text-muted)',
+            fontFamily: 'var(--font-ui)', transition: 'all var(--trans-fast)',
+          }}>{opt.label}</button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Edit Block Dialog ─────────────────────────────────────────
+
 function EditBlockDialog({ block, onClose, onSave, onDelete }: {
   block: Block; onClose: () => void;
   onSave: (b: Block) => void; onDelete: (id: number) => void;
@@ -80,17 +243,13 @@ function EditBlockDialog({ block, onClose, onSave, onDelete }: {
   const [category, setCategory] = useState(block.category);
   const [startH, setStartH] = useState(block.start);
   const [endH, setEndH] = useState(block.end);
-
-  function timeOptions() {
-    const opts: number[] = [];
-    for (let h = 6; h <= 23.5; h += 0.5) opts.push(h);
-    return opts;
-  }
+  const [repeat, setRepeat] = useState(block.repeat || 'none');
+  const [editingTime, setEditingTime] = useState<'start' | 'end' | null>(null);
 
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(30,30,15,0.45)', backdropFilter: 'blur(4px)' }} />
-      <div style={{ position: 'relative', background: 'var(--bg-alt)', borderRadius: 'var(--radius-xl)', padding: 28, width: 380, maxWidth: '95vw', boxShadow: 'var(--shadow-lg)', border: '1px solid var(--border)' }}>
+      <div style={{ position: 'relative', background: 'var(--bg-alt)', borderRadius: 'var(--radius-xl)', padding: 28, width: 380, maxWidth: '95vw', boxShadow: 'var(--shadow-lg)', border: '1px solid var(--border)', maxHeight: '90vh', overflowY: 'auto' }}>
         <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: 20, color: 'var(--text-secondary)' }}>Edit time block</h3>
         <input
           value={title}
@@ -107,17 +266,24 @@ function EditBlockDialog({ block, onClose, onSave, onDelete }: {
               <div style={{ fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.06em', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 6 }}>
                 {type === 'start' ? 'Start' : 'End'}
               </div>
-              <select
-                value={type === 'start' ? startH : endH}
-                onChange={e => type === 'start' ? setStartH(Number(e.target.value)) : setEndH(Number(e.target.value))}
-                style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1.5px solid var(--border)', background: 'var(--bg)', color: 'var(--text-primary)', fontSize: '0.875rem', fontFamily: 'var(--font-ui)', outline: 'none' }}
+              <button
+                onClick={() => setEditingTime(editingTime === type ? null : type)}
+                style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1.5px solid ${editingTime === type ? 'var(--accent)' : 'var(--border)'}`, background: 'var(--bg)', color: 'var(--text-primary)', fontSize: '0.875rem', fontFamily: 'var(--font-ui)', cursor: 'pointer', textAlign: 'left' }}
               >
-                {timeOptions().map(h => <option key={h} value={h}>{formatTime(h)}</option>)}
-              </select>
+                {formatTime(type === 'start' ? startH : endH)}
+              </button>
             </div>
           ))}
         </div>
-        <div style={{ marginBottom: 24 }}>
+        {editingTime && (
+          <div style={{ marginBottom: 20, display: 'flex', justifyContent: 'center' }}>
+            <ClockPicker
+              value={editingTime === 'start' ? startH : endH}
+              onChange={v => editingTime === 'start' ? setStartH(v) : setEndH(v)}
+            />
+          </div>
+        )}
+        <div style={{ marginBottom: 20 }}>
           <div style={{ fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.06em', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 10 }}>Category</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
             {CATEGORIES.map(cat => (
@@ -132,6 +298,7 @@ function EditBlockDialog({ block, onClose, onSave, onDelete }: {
             ))}
           </div>
         </div>
+        <RepeatPicker value={repeat} onChange={setRepeat} />
         <div style={{ display: 'flex', gap: 10, justifyContent: 'space-between' }}>
           <button
             onClick={() => onDelete(block.id)}
@@ -142,7 +309,7 @@ function EditBlockDialog({ block, onClose, onSave, onDelete }: {
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={onClose} style={{ padding: '9px 14px', borderRadius: 'var(--radius-md)', border: 'none', background: 'transparent', color: 'var(--text-primary)', cursor: 'pointer', fontFamily: 'var(--font-ui)', fontSize: '0.875rem' }}>Cancel</button>
             <button
-              onClick={() => onSave({ ...block, title, category, start: startH, end: endH })}
+              onClick={() => onSave({ ...block, title, category, start: startH, end: endH, repeat })}
               style={{ padding: '9px 18px', borderRadius: 'var(--radius-md)', border: 'none', background: 'var(--accent)', color: '#fff', cursor: 'pointer', fontFamily: 'var(--font-ui)', fontSize: '0.875rem', fontWeight: 500 }}
             >
               Save
@@ -153,6 +320,8 @@ function EditBlockDialog({ block, onClose, onSave, onDelete }: {
     </div>
   );
 }
+
+// ── Now Indicator ─────────────────────────────────────────────
 
 function NowIndicator({ hourHeight, startHour }: { hourHeight: number; startHour: number }) {
   const now = new Date();
@@ -167,19 +336,23 @@ function NowIndicator({ hourHeight, startHour }: { hourHeight: number; startHour
   );
 }
 
+// ── Quick Create Dialog ───────────────────────────────────────
+
 function QuickCreateDialog({ clickedHour, onClose, onSave }: {
   clickedHour: number; onClose: () => void; onSave: (b: Omit<Block, 'id'>) => void;
 }) {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
-  const startH = clickedHour;
-  const endH = clickedHour + 1;
+  const [startH, setStartH] = useState(clickedHour);
+  const [endH, setEndH] = useState(clickedHour + 1);
+  const [repeat, setRepeat] = useState('none');
+  const [editingTime, setEditingTime] = useState<'start' | 'end' | null>(null);
   const canSave = title.trim() && category;
 
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(30,30,15,0.45)', backdropFilter: 'blur(4px)' }} />
-      <div style={{ position: 'relative', background: 'var(--bg-alt)', borderRadius: 'var(--radius-xl)', padding: 28, width: 380, maxWidth: '95vw', boxShadow: 'var(--shadow-lg)', border: '1px solid var(--border)' }}>
+      <div style={{ position: 'relative', background: 'var(--bg-alt)', borderRadius: 'var(--radius-xl)', padding: 28, width: 380, maxWidth: '95vw', boxShadow: 'var(--shadow-lg)', border: '1px solid var(--border)', maxHeight: '90vh', overflowY: 'auto' }}>
         <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: 20, color: 'var(--text-secondary)' }}>New time block</h3>
         <input
           value={title}
@@ -196,13 +369,24 @@ function QuickCreateDialog({ clickedHour, onClose, onSave }: {
               <div style={{ fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.06em', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 6 }}>
                 {type === 'start' ? 'Start' : 'End'}
               </div>
-              <div style={{ padding: '8px 12px', borderRadius: 8, border: '1.5px solid var(--border)', background: 'var(--bg)', color: 'var(--text-primary)', fontSize: '0.875rem', fontFamily: 'var(--font-ui)' }}>
+              <button
+                onClick={() => setEditingTime(editingTime === type ? null : type)}
+                style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1.5px solid ${editingTime === type ? 'var(--accent)' : 'var(--border)'}`, background: 'var(--bg)', color: 'var(--text-primary)', fontSize: '0.875rem', fontFamily: 'var(--font-ui)', cursor: 'pointer', textAlign: 'left' }}
+              >
                 {formatTime(type === 'start' ? startH : endH)}
-              </div>
+              </button>
             </div>
           ))}
         </div>
-        <div style={{ marginBottom: 24 }}>
+        {editingTime && (
+          <div style={{ marginBottom: 20, display: 'flex', justifyContent: 'center' }}>
+            <ClockPicker
+              value={editingTime === 'start' ? startH : endH}
+              onChange={v => editingTime === 'start' ? setStartH(v) : setEndH(v)}
+            />
+          </div>
+        )}
+        <div style={{ marginBottom: 20 }}>
           <div style={{ fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.06em', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 10 }}>Category</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
             {CATEGORIES.map(cat => (
@@ -217,11 +401,12 @@ function QuickCreateDialog({ clickedHour, onClose, onSave }: {
             ))}
           </div>
         </div>
+        <RepeatPicker value={repeat} onChange={setRepeat} />
         <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
           <button onClick={onClose} style={{ padding: '9px 18px', borderRadius: 'var(--radius-md)', border: 'none', background: 'transparent', color: 'var(--text-primary)', cursor: 'pointer', fontFamily: 'var(--font-ui)', fontSize: '0.875rem' }}>Cancel</button>
           <button
             disabled={!canSave}
-            onClick={() => canSave && onSave({ title, category, start: startH, end: endH })}
+            onClick={() => canSave && onSave({ title, category, start: startH, end: endH, repeat })}
             style={{ padding: '9px 18px', borderRadius: 'var(--radius-md)', border: 'none', background: canSave ? 'var(--accent)' : 'var(--border)', color: canSave ? '#fff' : 'var(--text-muted)', cursor: canSave ? 'pointer' : 'not-allowed', fontFamily: 'var(--font-ui)', fontSize: '0.875rem', fontWeight: 500 }}
           >
             Create Block
@@ -231,6 +416,8 @@ function QuickCreateDialog({ clickedHour, onClose, onSave }: {
     </div>
   );
 }
+
+// ── Daily View ────────────────────────────────────────────────
 
 function DailyView({ blocks, setBlocks, hourHeight }: { blocks: Block[]; setBlocks: React.Dispatch<React.SetStateAction<Block[]>>; hourHeight: number }) {
   const startHour = 6;
@@ -245,6 +432,10 @@ function DailyView({ blocks, setBlocks, hourHeight }: { blocks: Block[]; setBloc
     setCreateDialog(h);
   }
 
+  function updateBlock(updated: Block) {
+    setBlocks(prev => prev.map(b => b.id === updated.id ? updated : b));
+  }
+
   return (
     <div style={{ position: 'relative', flex: 1 }}>
       <div ref={gridRef} onClick={handleGridClick} style={{ position: 'relative', minHeight: HOURS.length * hourHeight }}>
@@ -256,7 +447,10 @@ function DailyView({ blocks, setBlocks, hourHeight }: { blocks: Block[]; setBloc
         <div style={{ position: 'absolute', top: 0, left: 52, right: 0, bottom: 0 }}>
           <NowIndicator hourHeight={hourHeight} startHour={startHour} />
           {blocks.map(b => (
-            <TimeBlock key={b.id} block={b} hourHeight={hourHeight} startHour={startHour} onClick={() => setEditDialog(b)} />
+            <TimeBlock key={b.id} block={b} hourHeight={hourHeight} startHour={startHour}
+              onClick={() => setEditDialog(b)}
+              onUpdate={updateBlock}
+            />
           ))}
         </div>
       </div>
@@ -271,13 +465,15 @@ function DailyView({ blocks, setBlocks, hourHeight }: { blocks: Block[]; setBloc
         <EditBlockDialog
           block={editDialog}
           onClose={() => setEditDialog(null)}
-          onSave={updated => { setBlocks(prev => prev.map(b => b.id === updated.id ? updated : b)); setEditDialog(null); }}
+          onSave={updated => { updateBlock(updated); setEditDialog(null); }}
           onDelete={id => { setBlocks(prev => prev.filter(b => b.id !== id)); setEditDialog(null); }}
         />
       )}
     </div>
   );
 }
+
+// ── Weekly View ───────────────────────────────────────────────
 
 function WeeklyView({ hourHeight }: { hourHeight: number }) {
   const startHour = 6;
@@ -324,6 +520,8 @@ function WeeklyView({ hourHeight }: { hourHeight: number }) {
   );
 }
 
+// ── Monthly View ──────────────────────────────────────────────
+
 function MonthlyView() {
   const today = new Date();
   const year = today.getFullYear();
@@ -365,17 +563,21 @@ function MonthlyView() {
   );
 }
 
+// ── Planner Page ──────────────────────────────────────────────
+
 export default function PlannerPage() {
   const [view, setView] = useState('daily');
   const [date, setDate] = useState(new Date());
   const [blocks, setBlocks] = useState<Block[]>(SAMPLE_BLOCKS);
   const [hourHeight, setHourHeight] = useState(64);
+  const [showCreate, setShowCreate] = useState(false);
 
   function onPrev() { const d = new Date(date); d.setDate(d.getDate() - 1); setDate(d); }
   function onNext() { const d = new Date(date); d.setDate(d.getDate() + 1); setDate(d); }
 
   const dateStr = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+  const currentHour = new Date().getHours();
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
@@ -386,6 +588,16 @@ export default function PlannerPage() {
           <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: 2 }}>{dayName}</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button onClick={() => setShowCreate(true)} style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '6px 14px', borderRadius: 'var(--radius-md)',
+            border: 'none', background: 'var(--accent)', color: '#fff',
+            fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer',
+            fontFamily: 'var(--font-ui)', transition: 'opacity var(--trans-fast)',
+          }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New Event
+          </button>
           <div style={{ display: 'flex', gap: 2 }}>
             {['Daily', 'Weekly', 'Monthly'].map(v => (
               <button key={v} onClick={() => setView(v.toLowerCase())} style={{ padding: '5px 12px', borderRadius: 6, fontSize: '0.8rem', fontWeight: 500, background: view === v.toLowerCase() ? 'var(--accent-light)' : 'transparent', color: view === v.toLowerCase() ? 'var(--accent)' : 'var(--text-muted)', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-ui)', transition: 'all var(--trans-fast)' }}>{v}</button>
@@ -412,6 +624,14 @@ export default function PlannerPage() {
         {view === 'weekly'  && <WeeklyView hourHeight={Math.min(hourHeight, 56)} />}
         {view === 'monthly' && <MonthlyView />}
       </div>
+
+      {showCreate && (
+        <QuickCreateDialog
+          clickedHour={currentHour}
+          onClose={() => setShowCreate(false)}
+          onSave={block => { setBlocks(prev => [...prev, { ...block, id: Date.now() }]); setShowCreate(false); }}
+        />
+      )}
     </div>
   );
 }

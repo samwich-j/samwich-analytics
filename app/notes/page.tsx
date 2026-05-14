@@ -10,16 +10,6 @@ function timeAgo(d: Date) {
   return `${Math.floor(h / 24)}d ago`;
 }
 
-function parseInlineMd(text: string) {
-  if (!text) return '';
-  return text
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/_(.+?)_/g, '<em>$1</em>')
-    .replace(/~~(.+?)~~/g, '<s>$1</s>')
-    .replace(/`(.+?)`/g, '<code style="background:var(--accent-lighter);color:var(--accent);padding:1px 5px;border-radius:4px;font-size:0.9em">$1</code>');
-}
-
 const NB_ICONS: Record<string, React.ReactNode> = {
   school:   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>,
   work:     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>,
@@ -106,14 +96,13 @@ function Block({ block, onChange, onEnter, onDelete, onFocus, focused }: {
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [slashMenu, setSlashMenu] = useState<{ x: number; y: number; query: string } | null>(null);
-  const [localFocused, setLocalFocused] = useState(false);
   const [hovering, setHovering] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     if (ref.current) ref.current.innerText = block.content;
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [block.type]);
 
   useEffect(() => {
     if (focused && ref.current) {
@@ -143,15 +132,25 @@ function Block({ block, onChange, onEnter, onDelete, onFocus, focused }: {
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!slashMenu) onEnter(block.type); }
-    if (e.key === 'Backspace' && (ref.current?.innerText === '' || ref.current?.innerText === '\n')) { e.preventDefault(); onDelete(); }
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (slashMenu) return;
+      const content = ref.current?.innerText || '';
+      if (!content && (block.type === 'bullet' || block.type === 'checkbox')) {
+        onChange({ type: 'p' });
+        return;
+      }
+      onEnter(block.type);
+    }
+    if (e.key === 'Backspace' && (!ref.current?.innerText || ref.current?.innerText === '\n')) { e.preventDefault(); onDelete(); }
   }
 
   function handleSlashSelect(type: string | null) {
     setSlashMenu(null);
     if (!type) { onChange({ content: '' }); if (ref.current) ref.current.innerText = ''; return; }
     onChange({ type, content: '' });
-    if (ref.current) { ref.current.innerText = ''; ref.current.focus(); }
+    if (ref.current) ref.current.innerText = '';
+    setTimeout(() => ref.current?.focus(), 0);
   }
 
   const blockStyles: Record<string, React.CSSProperties> = {
@@ -164,23 +163,14 @@ function Block({ block, onChange, onEnter, onDelete, onFocus, focused }: {
   };
 
   const style = blockStyles[block.type] || blockStyles.p;
-  const placeholder = block.type === 'p' ? "Type '/' for commands…" : block.type.toUpperCase();
+  const placeholder = block.type === 'p' ? "Type '/' for commands…" : block.type.startsWith('h') ? block.type.replace('h', 'Heading ') : '';
 
   const editable = block.type !== 'divider' ? (
     <div ref={ref} contentEditable suppressContentEditableWarning
       onInput={handleInput} onKeyDown={handleKeyDown}
-      onFocus={() => { setLocalFocused(true); onFocus(); }}
-      onBlur={() => setLocalFocused(false)}
+      onFocus={() => onFocus()}
       style={{ outline: 'none', wordBreak: 'break-word', ...style }}
       data-placeholder={placeholder}
-    />
-  ) : null;
-
-  const rendered = block.type !== 'divider' ? (
-    <div
-      dangerouslySetInnerHTML={{ __html: parseInlineMd(block.content) || `<span style="opacity:0.35">${placeholder}</span>` }}
-      onClick={() => { setLocalFocused(true); onFocus(); }}
-      style={{ cursor: 'text', outline: 'none', wordBreak: 'break-word', ...style }}
     />
   ) : null;
 
@@ -194,7 +184,7 @@ function Block({ block, onChange, onEnter, onDelete, onFocus, focused }: {
           {block.checked && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>}
         </div>
         <div style={{ flex: 1, textDecoration: block.checked ? 'line-through' : 'none', color: block.checked ? 'var(--text-muted)' : 'var(--text-primary)', opacity: block.checked ? 0.65 : 1 }}>
-          {localFocused || focused ? editable : rendered}
+          {editable}
         </div>
       </div>
     );
@@ -202,11 +192,11 @@ function Block({ block, onChange, onEnter, onDelete, onFocus, focused }: {
     innerContent = (
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '1px 0' }}>
         <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', marginTop: 11, flexShrink: 0 }} />
-        <div style={{ flex: 1 }}>{localFocused || focused ? editable : rendered}</div>
+        <div style={{ flex: 1 }}>{editable}</div>
       </div>
     );
   } else {
-    innerContent = (localFocused || focused ? editable : rendered);
+    innerContent = editable;
   }
 
   return (
