@@ -229,7 +229,7 @@ function Block({ block, onChange, onEnter, onDelete, onFocus, focused, index, on
 
   return (
     <div
-      style={{ position: 'relative', padding: block.type === 'divider' ? '8px 0' : undefined }}
+      style={{ position: 'relative', marginLeft: -32, paddingLeft: 32, padding: block.type === 'divider' ? '8px 0 8px 32px' : undefined }}
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
       onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; onDragOverBlock(index); }}
