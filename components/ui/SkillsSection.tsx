@@ -1,10 +1,10 @@
 import { Tag } from './Tag';
 
 const SKILL_GROUPS = [
-  { label: 'Languages',    skills: ['R', 'Python'],                                           cat: 'accent'  },
-  { label: 'Visualization', skills: ['Tableau', 'Power BI'],                                  cat: 'gold'    },
-  { label: 'Methods',      skills: ['Statistical Analyses', 'Survey Design', 'Experiment Design'], cat: 'work' },
-  { label: 'Tools',        skills: ['Jamovi', 'Excel', 'Data Cleaning & Management'],          cat: 'travel'  },
+  { label: 'Languages',     skills: ['R', 'Python', 'SQL'],                                                                                    cat: 'accent'  },
+  { label: 'Visualization', skills: ['Tableau', 'Power BI'],                                                                                   cat: 'gold'    },
+  { label: 'Methods',       skills: ['Survey Design', 'Experiment Design', 'Regression Analysis', 'A/B Testing', 'Time Series', 'Classification', 'Machine Learning'], cat: 'work' },
+  { label: 'Tools',         skills: ['Qualtrics', 'Claude Code', 'Jamovi', 'Excel', 'Data Cleaning & Management'],                              cat: 'travel'  },
 ];
 
 export function SkillsSection() {

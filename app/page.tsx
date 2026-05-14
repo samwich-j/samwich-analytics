@@ -38,13 +38,13 @@ export default function PortfolioPage() {
       {/* Hero */}
       <section style={{ marginBottom: 56 }}>
         <p style={{ fontSize: 'var(--text-sm)', color: 'var(--accent)', fontWeight: 500, marginBottom: 8, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-          Data Analyst & Statistical Consultant
+          Statistical Data Analyst
         </p>
         <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.15, marginBottom: 20 }}>
           Hi, I&apos;m Sam Johnston
         </h1>
         <p style={{ fontSize: 'var(--text-md)', color: 'var(--text-secondary)', lineHeight: 1.7, maxWidth: 640, marginBottom: 32 }}>
-          I study Statistics at Utah Valley University with a focus on survey methodology, experimental design, and data visualization. I help organizations turn raw data into clear, actionable insights.
+          I&apos;m a statistical data analyst specializing in large-scale data processing, interactive dashboard development, and survey and experimental design. I build robust, data-driven solutions that help organizations make confident decisions from complex datasets.
         </p>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
           <a
