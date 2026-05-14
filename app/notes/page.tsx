@@ -10,6 +10,33 @@ function timeAgo(d: Date) {
   return `${Math.floor(h / 24)}d ago`;
 }
 
+function blocksToMarkdown(title: string, blocks: NoteBlock[]): string {
+  let md = title ? `# ${title}\n\n` : '';
+  for (const b of blocks) {
+    switch (b.type) {
+      case 'h1': md += `# ${b.content}\n\n`; break;
+      case 'h2': md += `## ${b.content}\n\n`; break;
+      case 'h3': md += `### ${b.content}\n\n`; break;
+      case 'bullet': md += `- ${b.content}\n`; break;
+      case 'checkbox': md += `- [${b.checked ? 'x' : ' '}] ${b.content}\n`; break;
+      case 'divider': md += `---\n\n`; break;
+      default: if (b.content) md += `${b.content}\n\n`; break;
+    }
+  }
+  return md.trimEnd() + '\n';
+}
+
+function downloadMarkdown(title: string, blocks: NoteBlock[]) {
+  const md = blocksToMarkdown(title, blocks);
+  const blob = new Blob([md], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${(title || 'untitled').replace(/[^a-zA-Z0-9]+/g, '_').toLowerCase()}.md`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 const NB_ICONS: Record<string, React.ReactNode> = {
   school:   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>,
   work:     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>,
@@ -90,9 +117,10 @@ function SlashMenu({ query, onSelect, position }: { query: string; onSelect: (t:
   );
 }
 
-function Block({ block, onChange, onEnter, onDelete, onFocus, focused }: {
+function Block({ block, onChange, onEnter, onDelete, onFocus, focused, index, onDragStart, onDragOverBlock, onDropBlock, isDragOver }: {
   block: NoteBlock; onChange: (c: Partial<NoteBlock>) => void;
   onEnter: (type?: string) => void; onDelete: () => void; onFocus: () => void; focused: boolean;
+  index: number; onDragStart: (i: number) => void; onDragOverBlock: (i: number) => void; onDropBlock: () => void; isDragOver: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [slashMenu, setSlashMenu] = useState<{ x: number; y: number; query: string } | null>(null);
@@ -176,7 +204,7 @@ function Block({ block, onChange, onEnter, onDelete, onFocus, focused }: {
 
   let innerContent: React.ReactNode;
   if (block.type === 'divider') {
-    innerContent = <hr style={{ border: 'none', borderTop: '1px solid var(--border)' }} />;
+    innerContent = <hr onClick={() => onEnter()} style={{ border: 'none', borderTop: '1px solid var(--border)', cursor: 'pointer' }} />;
   } else if (block.type === 'checkbox') {
     innerContent = (
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '2px 0' }}>
@@ -204,7 +232,10 @@ function Block({ block, onChange, onEnter, onDelete, onFocus, focused }: {
       style={{ position: 'relative', padding: block.type === 'divider' ? '8px 0' : undefined }}
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
+      onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; onDragOverBlock(index); }}
+      onDrop={e => { e.preventDefault(); onDropBlock(); }}
     >
+      {isDragOver && <div style={{ position: 'absolute', top: -1, left: 0, right: 0, height: 2, background: 'var(--accent)', borderRadius: 1, zIndex: 10 }} />}
       {block.type !== 'divider' && (
         <div style={{
           position: 'absolute', left: -30, top: block.type === 'h1' ? 20 : block.type === 'h2' ? 16 : 2,
@@ -212,8 +243,11 @@ function Block({ block, onChange, onEnter, onDelete, onFocus, focused }: {
           pointerEvents: hovering || menuOpen ? 'auto' : 'none',
         }}>
           <button
-            onMouseDown={e => { e.stopPropagation(); e.preventDefault(); setMenuOpen(m => !m); }}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '2px 3px', borderRadius: 4, display: 'flex', alignItems: 'center', lineHeight: 1 }}
+            draggable
+            onDragStart={e => { e.dataTransfer.effectAllowed = 'move'; setMenuOpen(false); onDragStart(index); }}
+            onMouseDown={e => e.stopPropagation()}
+            onClick={() => setMenuOpen(m => !m)}
+            style={{ background: 'none', border: 'none', cursor: 'grab', color: 'var(--text-muted)', padding: '2px 3px', borderRadius: 4, display: 'flex', alignItems: 'center', lineHeight: 1 }}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
               <circle cx="7" cy="5" r="2"/><circle cx="7" cy="12" r="2"/><circle cx="7" cy="19" r="2"/>
@@ -257,6 +291,8 @@ function Block({ block, onChange, onEnter, onDelete, onFocus, focused }: {
 
 function BlockEditor({ blocks, setBlocks, title, setTitle }: { blocks: NoteBlock[]; setBlocks: (b: NoteBlock[]) => void; title: string; setTitle: (t: string) => void }) {
   const [focusedId, setFocusedId] = useState<string | null>(null);
+  const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
+  const [dropTargetIdx, setDropTargetIdx] = useState<number | null>(null);
   const titleRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { if (titleRef.current) titleRef.current.innerText = title; }, []);
@@ -279,23 +315,56 @@ function BlockEditor({ blocks, setBlocks, title, setTitle }: { blocks: NoteBlock
   }
 
   return (
-    <div style={{ maxWidth: 680, margin: '0 auto', padding: '40px 32px 80px' }}>
+    <div style={{ maxWidth: 680, margin: '0 auto', padding: '40px 32px 80px', minHeight: '100%' }}
+      onClick={e => {
+        if (e.target === e.currentTarget) {
+          const last = blocks[blocks.length - 1];
+          if (last && last.content === '' && last.type === 'p') {
+            setFocusedId(last.id);
+          } else {
+            const nb: NoteBlock = { id: makeId(), type: 'p', content: '', checked: false };
+            setBlocks([...blocks, nb]);
+            setTimeout(() => setFocusedId(nb.id), 10);
+          }
+        }
+      }}
+    >
       <div ref={titleRef} contentEditable suppressContentEditableWarning
         onInput={e => setTitle((e.currentTarget as HTMLDivElement).innerText)}
+        onKeyDown={e => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            if (blocks.length > 0) setFocusedId(blocks[0].id);
+          }
+        }}
         style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1.2, color: 'var(--text-secondary)', outline: 'none', marginBottom: 32, minHeight: '2.4rem', wordBreak: 'break-word' }}
         data-placeholder="Untitled"
       />
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {blocks.map(block => (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}
+        onDragEnd={() => { setDraggedIdx(null); setDropTargetIdx(null); }}>
+        {blocks.map((block, i) => (
           <Block key={block.id} block={block} focused={focusedId === block.id}
             onFocus={() => setFocusedId(block.id)}
             onChange={ch => updateBlock(block.id, ch)}
             onEnter={type => insertAfter(block.id, type)}
             onDelete={() => deleteBlock(block.id)}
+            index={i}
+            onDragStart={setDraggedIdx}
+            onDragOverBlock={setDropTargetIdx}
+            onDropBlock={() => {
+              if (draggedIdx !== null && dropTargetIdx !== null && draggedIdx !== dropTargetIdx) {
+                const next = [...blocks];
+                const [removed] = next.splice(draggedIdx, 1);
+                next.splice(dropTargetIdx > draggedIdx ? dropTargetIdx - 1 : dropTargetIdx, 0, removed);
+                setBlocks(next);
+              }
+              setDraggedIdx(null); setDropTargetIdx(null);
+            }}
+            isDragOver={dropTargetIdx === i && draggedIdx !== null && draggedIdx !== i}
           />
         ))}
       </div>
-      <style>{`[contenteditable]:empty:before{content:attr(data-placeholder);color:var(--text-muted);pointer-events:none;opacity:0.4}`}</style>
+      <style>{`[contenteditable]:empty:focus:before{content:attr(data-placeholder);color:var(--text-muted);pointer-events:none;opacity:0.4}`}</style>
     </div>
   );
 }
@@ -314,7 +383,14 @@ function QuickNoteEditor({ note, onBack, onSave }: { note: QuickNote; onBack: ()
           Quick Notes
         </button>
         <span style={{ color: 'var(--border)', fontSize: '0.8rem' }}>/</span>
-        <span style={{ fontSize: '0.8rem', color: 'var(--text-primary)', fontWeight: 500 }}>{title || 'Untitled'}</span>
+        <span style={{ fontSize: '0.8rem', color: 'var(--text-primary)', fontWeight: 500, flex: 1 }}>{title || 'Untitled'}</span>
+        <button onClick={() => downloadMarkdown(title || 'Untitled', blocks)}
+          style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'none', border: '1px solid var(--border)', borderRadius: 6, cursor: 'pointer', padding: '5px 10px', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 500, fontFamily: 'var(--font-ui)', transition: 'color var(--trans-fast), border-color var(--trans-fast)' }}
+          onMouseEnter={e => { e.currentTarget.style.color = 'var(--accent)'; e.currentTarget.style.borderColor = 'var(--accent)'; }}
+          onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'var(--border)'; }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export .md
+        </button>
       </div>
       <div style={{ flex: 1, overflowY: 'auto' }}>
         <BlockEditor blocks={blocks} setBlocks={setBlocks} title={title} setTitle={setTitle} />
@@ -419,6 +495,14 @@ function NotePageView({ note, breadcrumb }: { note: NotebookPage; breadcrumb: { 
             </button>
           </span>
         ))}
+        <div style={{ flex: 1 }} />
+        <button onClick={() => downloadMarkdown(title, blocks)}
+          style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'none', border: '1px solid var(--border)', borderRadius: 6, cursor: 'pointer', padding: '5px 10px', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 500, fontFamily: 'var(--font-ui)', transition: 'color var(--trans-fast), border-color var(--trans-fast)' }}
+          onMouseEnter={e => { e.currentTarget.style.color = 'var(--accent)'; e.currentTarget.style.borderColor = 'var(--accent)'; }}
+          onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'var(--border)'; }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export .md
+        </button>
       </div>
       <div style={{ flex: 1, overflowY: 'auto' }}>
         <BlockEditor blocks={blocks} setBlocks={setBlocks} title={title} setTitle={setTitle} />
