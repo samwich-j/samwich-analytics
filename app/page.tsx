@@ -10,7 +10,7 @@ const PROJECTS = [
     title: 'Midway Open Space Bond Report',
     description: 'Designed and administered a community survey to evaluate resident support for an open space bond initiative. Conducted statistical analysis in R, produced visualizations, and delivered a professional report used to guide city planning decisions.',
     tags: ['Survey Design', 'R', 'Report Writing'],
-    link: 'https://drive.google.com/file/d/1Qn2UaxJ7x3vKGrOpD5b5xVk5GgI1HJJL/view',
+    link: 'https://drive.google.com/file/d/1sHuA9nharRDQ-Or0MefJG4dNN2jp2kOL/view?usp=sharing',
   },
   {
     title: 'Call of Duty: Warzone Geospatial Analysis',
@@ -22,7 +22,13 @@ const PROJECTS = [
     title: 'Utah Valley Growth & Prosperity Summit',
     description: 'Partnered with the Utah Valley Chamber of Commerce to design surveys, clean response data, and produce presentation-ready analytics for a regional economic summit attended by business and civic leaders.',
     tags: ['Data Presentation', 'Survey Design', 'Data Cleaning & Analytics'],
-    link: 'https://drive.google.com/file/d/1-0xm2iyKE5gUDfQBGxw7q09cMRBFQ0Xb/view',
+    link: 'https://drive.google.com/file/d/1xZmydzlQCSDvf64RcuuJPSaClRoK0Dx8/view?usp=sharing',
+  },
+  {
+    title: 'Utah Valley Growth & Prosperity Summit 2025',
+    description: 'Led survey design, data collection, and analysis for the 2025 Growth & Prosperity Summit. Produced a comprehensive report with data-driven insights for regional business and civic leaders.',
+    tags: ['Survey Design', 'Data Analysis', 'Report Writing'],
+    link: 'https://drive.google.com/file/d/1IxZcEjnaDVoo4AKdbZH_QVJ3aU-FRrAh/view?usp=sharing',
   },
 ];
 
