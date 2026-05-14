@@ -229,7 +229,7 @@ function Block({ block, onChange, onEnter, onDelete, onFocus, focused, index, on
 
   return (
     <div
-      style={{ position: 'relative', marginLeft: -32, paddingLeft: 32, padding: block.type === 'divider' ? '8px 0 8px 32px' : undefined }}
+      style={{ position: 'relative', padding: block.type === 'divider' ? '8px 0' : undefined }}
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
       onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; onDragOverBlock(index); }}
@@ -238,9 +238,8 @@ function Block({ block, onChange, onEnter, onDelete, onFocus, focused, index, on
       {isDragOver && <div style={{ position: 'absolute', top: -1, left: 0, right: 0, height: 2, background: 'var(--accent)', borderRadius: 1, zIndex: 10 }} />}
       {block.type !== 'divider' && (
         <div style={{
-          position: 'absolute', left: 2, top: block.type === 'h1' ? 20 : block.type === 'h2' ? 16 : 2,
+          position: 'absolute', left: -30, top: block.type === 'h1' ? 20 : block.type === 'h2' ? 16 : 2,
           opacity: hovering || menuOpen ? 1 : 0, transition: 'opacity 0.12s',
-          pointerEvents: hovering || menuOpen ? 'auto' : 'none',
         }}>
           <button
             draggable
@@ -257,7 +256,7 @@ function Block({ block, onChange, onEnter, onDelete, onFocus, focused, index, on
         </div>
       )}
       {menuOpen && (
-        <div onMouseDown={e => e.stopPropagation()} style={{ position: 'absolute', left: 2, top: '100%', zIndex: 600, background: 'var(--bg-alt)', borderRadius: 10, boxShadow: 'var(--shadow)', border: '1px solid var(--border)', width: 200, padding: 4 }}>
+        <div onMouseDown={e => e.stopPropagation()} style={{ position: 'absolute', left: -30, top: '100%', zIndex: 600, background: 'var(--bg-alt)', borderRadius: 10, boxShadow: 'var(--shadow)', border: '1px solid var(--border)', width: 200, padding: 4 }}>
           <div style={{ fontSize: '0.65rem', fontWeight: 600, color: 'var(--text-muted)', padding: '2px 8px 4px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Turn into</div>
           {SLASH_COMMANDS.filter(c => c.type !== 'divider').map(cmd => (
             <div key={cmd.type}
@@ -329,7 +328,7 @@ function BlockEditor({ blocks, setBlocks, title, setTitle }: { blocks: NoteBlock
         }
       }}
     >
-      <div ref={titleRef} contentEditable suppressContentEditableWarning
+      <div ref={titleRef} className="note-title" contentEditable suppressContentEditableWarning
         onInput={e => setTitle((e.currentTarget as HTMLDivElement).innerText)}
         onFocus={() => setFocusedId(null)}
         onKeyDown={e => {
@@ -365,7 +364,7 @@ function BlockEditor({ blocks, setBlocks, title, setTitle }: { blocks: NoteBlock
           />
         ))}
       </div>
-      <style>{`[contenteditable]:empty:focus:before{content:attr(data-placeholder);color:var(--text-muted);pointer-events:none;opacity:0.4}`}</style>
+      <style>{`.note-title:empty:before,[contenteditable]:empty:focus:before{content:attr(data-placeholder);color:var(--text-muted);pointer-events:none;opacity:0.4}`}</style>
     </div>
   );
 }
