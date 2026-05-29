@@ -12,7 +12,8 @@ const SCREEN_TITLES: Record<string, string> = {
   '/planner': 'Planner',
   '/notes':   'Notes',
   '/login':   'Sign In',
-  '/resume':  'Résumé',
+  '/resume':    'Résumé',
+  '/portfolio': 'Portfolio',
 };
 
 export function AppShell({ children }: { children: React.ReactNode }) {

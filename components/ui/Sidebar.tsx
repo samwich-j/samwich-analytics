@@ -7,8 +7,10 @@ import { useTheme } from '@/components/providers/ThemeProvider';
 import { Icon } from './Icon';
 
 const PUBLIC_NAV = [
-  { href: '/',     icon: 'home', label: 'Home' },
-  { href: '/blog', icon: 'blog', label: 'Blog' },
+  { href: '/',          icon: 'home',      label: 'Home' },
+  { href: '/blog',      icon: 'blog',      label: 'Blog' },
+  { href: '/resume',    icon: 'user',      label: 'Résumé' },
+  { href: '/portfolio', icon: 'briefcase', label: 'Portfolio' },
 ];
 
 const PRIVATE_NAV = [

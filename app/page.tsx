@@ -88,6 +88,22 @@ export default function PortfolioPage() {
             <ProjectCard key={p.title} {...p} />
           ))}
         </div>
+        <div style={{ textAlign: 'center', marginTop: 24 }}>
+          <Link
+            href="/portfolio"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              padding: '10px 22px', borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--border)', color: 'var(--text-primary)',
+              fontWeight: 500, fontSize: 'var(--text-sm)',
+              textDecoration: 'none', transition: 'background var(--trans-fast)',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.background = 'var(--sidebar-item-hover)')}
+            onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+          >
+            View all projects →
+          </Link>
+        </div>
       </section>
 
       {/* Skills */}
