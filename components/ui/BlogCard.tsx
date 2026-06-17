@@ -11,9 +11,10 @@ interface BlogCardProps {
   tags: string[];
   slug: string;
   isDraft?: boolean;
+  pinned?: boolean;
 }
 
-export function BlogCard({ title, date, description, tags, slug, isDraft }: BlogCardProps) {
+export function BlogCard({ title, date, description, tags, slug, isDraft, pinned }: BlogCardProps) {
   const [hovered, setHovered] = useState(false);
 
   return (
@@ -33,6 +34,15 @@ export function BlogCard({ title, date, description, tags, slug, isDraft }: Blog
           <h3 style={{ fontSize: 'var(--text-h4)', fontWeight: 600, color: 'var(--text-secondary)', lineHeight: 1.3 }}>
             {title}
           </h3>
+          {pinned && (
+            <span style={{
+              fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.06em',
+              textTransform: 'uppercase', background: 'var(--bg-active)',
+              color: 'var(--text-muted)', padding: '2px 7px', borderRadius: 'var(--radius-full)',
+            }}>
+              Pinned
+            </span>
+          )}
           {isDraft && (
             <span style={{
               fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.06em',

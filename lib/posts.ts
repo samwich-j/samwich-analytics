@@ -11,6 +11,7 @@ export interface PostMeta {
   description: string;
   tags: string[];
   isDraft: boolean;
+  pinned: boolean;
 }
 
 export interface Post extends PostMeta {
@@ -33,6 +34,7 @@ export async function getPosts({ includeAllDrafts = false } = {}): Promise<PostM
       description: data.description ?? '',
       tags: data.tags ?? [],
       isDraft: data.draft === true,
+      pinned: data.pinned === true,
     } satisfies PostMeta;
   });
 
@@ -40,7 +42,10 @@ export async function getPosts({ includeAllDrafts = false } = {}): Promise<PostM
 
   return posts
     .filter(p => includeAllDrafts || isDev || !p.isDraft)
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    .sort((a, b) => {
+      if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    });
 }
 
 export async function getPost(slug: string): Promise<Post | null> {
@@ -63,6 +68,7 @@ export async function getPost(slug: string): Promise<Post | null> {
       description: data.description ?? '',
       tags: data.tags ?? [],
       isDraft,
+      pinned: data.pinned === true,
       content,
     };
   }
