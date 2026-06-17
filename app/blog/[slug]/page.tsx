@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getPost, getPosts } from '@/lib/posts';
 import { MDXRemote } from 'next-mdx-remote/rsc';
@@ -23,6 +24,16 @@ export default async function BlogPostPage({ params }: Props) {
 
   return (
     <div className="reading-inner">
+      <Link href="/blog" style={{
+        display: 'inline-flex', alignItems: 'center', gap: 6,
+        color: 'var(--text-muted)', fontSize: 'var(--text-sm)',
+        textDecoration: 'none', marginBottom: 24,
+        transition: 'color var(--trans-fast)',
+      }}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Back to Blog
+      </Link>
+
       {/* Header */}
       <div style={{ marginBottom: 40 }}>
         {post.isDraft && (
