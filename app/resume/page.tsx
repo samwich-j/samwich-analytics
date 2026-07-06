@@ -5,7 +5,7 @@ import { Tag } from '@/components/ui/Tag';
 
 const HEADER = {
   name: 'Sam Johnston',
-  title: 'Program Research & Data Analyst',
+  title: 'Data Analyst',
   email: 'sam.redd.johnston2@gmail.com',
   phone: '385-497-4333',
   location: 'Mapleton, Utah',
@@ -84,7 +84,7 @@ const EXPERIENCE = [
 
 const EDUCATION = [
   {
-    degree: 'M.S. Analytics (Data Science)',
+    degree: 'M.S. Analytics (Data Science, Online)',
     school: 'Georgia Institute of Technology',
     date: 'Starting Fall 2026',
     details: [],

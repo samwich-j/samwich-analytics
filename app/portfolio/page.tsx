@@ -7,6 +7,17 @@ import { Icon } from '@/components/ui/Icon';
 
 const FEATURED_PROJECTS = [
   {
+    title: 'Wasatch Cup Healthcare Case Competition',
+    client: '1st Place Winner',
+    date: 'October 2025',
+    description: 'Collaborated with an interdisciplinary team to secure 1st Place in the 2025 Wasatch Cup, the region\'s premier healthcare case competition hosted by the BYU Healthcare Leadership Association. Our winning solution proposed a mobile health clinic to expand critical access to underserved populations in Southern Utah. I spearheaded the data validation phase, modeling financial outcomes to prove the clinic model was both scalable and financially viable.',
+    tools: ['Python', 'ARIMA', 'Prophet', 'Financial Modeling'],
+    bullets: [
+      'Built time-series forecasting models to project patient demand and clinic utilization over a 3-year horizon.',
+      'Successfully differentiated our strategy from top competing teams across the state, winning the grand prize.',
+    ],
+  },
+  {
     title: 'Growth & Prosperity Summit Survey',
     client: 'Utah Valley Chamber of Commerce',
     date: 'July – November 2024',
@@ -16,7 +27,6 @@ const FEATURED_PROJECTS = [
       'Co-presented to business executives and elected officials, including the Governor of Utah and a U.S. Senator.',
       'Translated complex statistical results into a clear, actionable narrative for non-technical stakeholders.',
     ],
-    link: 'https://drive.google.com/file/d/1xZmydzlQCSDvf64RcuuJPSaClRoK0Dx8/view?usp=sharing',
   },
   {
     title: 'Growth & Prosperity Conference Survey (MaxDiff)',
@@ -28,7 +38,28 @@ const FEATURED_PROJECTS = [
       'Identified distinct community priority segments through cluster analysis, enabling targeted policy recommendations.',
       'Co-presented results to summit attendees; finalizing comprehensive report and infographic for publication.',
     ],
-    link: 'https://drive.google.com/file/d/1IxZcEjnaDVoo4AKdbZH_QVJ3aU-FRrAh/view?usp=sharing',
+  },
+  {
+    title: 'Program Learning Outcomes NLP & Agentic LLM Analysis',
+    client: 'UVU Dept. of Academic Analytics & Assessment',
+    date: '2025 – Present',
+    description: 'Built an NLP pipeline to audit curriculum alignment across university degree programs, using text analysis to extract and classify action verbs from program and course-level learning outcomes to identify gaps, redundancies, and misalignment. The structured output powers interactive Power BI dashboards used by academic leadership for accreditation and continuous improvement. A second phase extends this work with an agentic LLM system (LangGraph + Ollama) that performs deeper analysis on text-heavy institutional data, surfacing meaningful insights that would be impractical to extract manually.',
+    tools: ['Python', 'R', 'NLP', 'Power BI', 'LangGraph', 'Ollama'],
+    bullets: [
+      'NLP text analysis extracts and classifies action verbs across learning outcomes to identify curriculum gaps and redundancies.',
+      'Power BI dashboards deployed for academic leadership to support accreditation and program evaluation.',
+      'Agentic LLM architecture extends the analysis, extracting meaningful insights from text-heavy institutional data at scale.',
+    ],
+  },
+  {
+    title: 'Big 12 Healthcare Case Competition',
+    client: 'Best Presentation Award',
+    date: '2026',
+    description: 'Competed in the Big 12 Healthcare Case Competition, performing structural equation modeling and forecasting analysis. Awarded Best Presentation for clear, evidence-based communication of complex analytical findings to a panel of industry judges.',
+    tools: ['SEM (Structural Equation Modeling)', 'Forecasting', 'Data Visualization'],
+    bullets: [
+      'Awarded Best Presentation for translating advanced statistical methods into actionable recommendations.',
+    ],
   },
   {
     title: 'CRO A/B Test & Dashboard',
@@ -78,17 +109,6 @@ const FEATURED_PROJECTS = [
     ],
   },
   {
-    title: 'Wasatch Cup Healthcare Case Competition',
-    client: '1st Place Winner',
-    date: 'October 2025',
-    description: 'Collaborated with an interdisciplinary team to secure 1st Place in the 2025 Wasatch Cup, the region\'s premier healthcare case competition hosted by the BYU Healthcare Leadership Association. Our winning solution proposed a mobile health clinic to expand critical access to underserved populations in Southern Utah. I spearheaded the data validation phase, modeling financial outcomes to prove the clinic model was both scalable and financially viable.',
-    tools: ['Python', 'ARIMA', 'Prophet', 'Financial Modeling'],
-    bullets: [
-      'Built time-series forecasting models to project patient demand and clinic utilization over a 3-year horizon.',
-      'Successfully differentiated our strategy from top competing teams across the state, winning the grand prize.',
-    ],
-  },
-  {
     title: 'MLB Payroll Efficiency & Containerized Data Warehouse',
     client: 'Personal Project',
     date: 'February 2026',
@@ -102,18 +122,23 @@ const FEATURED_PROJECTS = [
 ];
 
 const ADDITIONAL_PROJECTS = [
-  { title: 'Big 12 Healthcare Case Competition', description: 'Best Presentation Award — structural equation modeling and forecasting for healthcare case competition.', tools: ['SEM', 'Forecasting', 'Data Visualization'] },
   { title: 'Baseball Game Theory Engine', description: 'Nash equilibrium analysis of optimal first-pitch swing strategy using 2024 MLB Statcast data.', tools: ['R', 'Quarto', 'Statcast', 'Lahman DB'] },
-  { title: 'Program Learning Outcomes NLP Analysis', description: 'NLP-driven audit of curriculum alignment across degree programs, deployed as interactive dashboards.', tools: ['Python', 'R', 'NLP', 'Power BI'] },
   { title: 'Learning Outcome Hierarchy Analysis', description: 'Maps hierarchical relationships between degree programs and courses to evaluate curriculum alignment.', tools: ['NLP', 'Power BI', 'Semantic Analysis'] },
   { title: 'Student Engagement Research Paper', description: 'Assessed student engagement using the validated Utrecht Student Engagement Scale; contributed to formal manuscript.', tools: ['Qualtrics', 'R', 'UWES Scale'] },
   { title: 'Student Engagement Dashboard Migration', description: 'Migrated proprietary analysis logic from Tableau to Power BI with complex DAX queries.', tools: ['Tableau → Power BI', 'Advanced DAX'] },
   { title: 'Online Program Information Dashboard', description: 'Multi-page Power BI dashboard for university online program performance metrics.', tools: ['Python', 'Power BI', 'Data Wrangling'] },
   { title: 'Survey Software Comparison Experiment', description: 'Comparative usability study commissioned by Sawtooth Software, scaling to a 300-student cohort.', tools: ['Sawtooth', 'Qualtrics', 'SurveyMonkey', 'R'] },
   { title: 'Midway Bond Report', description: 'Public sentiment analysis for a municipal bond proposal; bond successfully passed after survey-guided messaging.', tools: ['Qualtrics', 'R', 'Canva'] },
+  { title: 'Elastic Net Presentation', description: 'Co-delivered technical lecture on regularization techniques to Dr. Mauricio Umana\'s Harvard Microeconomics of Competitiveness cohort.', tools: ['R', 'Ridge/LASSO/Elastic Net'] },
+  { title: 'Bitcoin Valuation Models', description: 'Comparative forecasting models for cryptocurrency valuation; co-presented to Dr. Umana\'s cohort with investment thesis.', tools: ['R', 'Statistica', 'Elastic Net', 'ARIMA', 'Prophet'] },
+  { title: 'Stock Market Prediction & Analysis', description: 'Ensemble forecasting models and structural equation modeling for equity price prediction.', tools: ['Python (yfinance)', 'XGBoost', 'Prophet', 'SEM'] },
+  { title: 'Angel Fund Impact Assessment', description: 'Partnered with iHub Provo to quantify economic impact of their Angel Fund and VC operations on the local startup ecosystem.', tools: ['Startup Data Analysis', 'Economic Impact Modeling'] },
+  { title: 'Silicon Slopes Recruitment Survey', description: 'Investigating why Utah tech companies struggle to retain high-talent employees recruited from out of state.', tools: ['Survey Design', 'R'] },
+  { title: 'Eagle Mountain Process Improvement', description: 'Conducted structured interviews with city department leaders to identify operational bottlenecks; synthesized actionable recommendations.', tools: ['Qualitative Interviews', 'Process Optimization'] },
+  { title: 'Smart Cities Presentation', description: 'Presented smart city concepts and data-driven urban planning strategies to business owners at the UVU Business Resource Center.', tools: ['Research', 'Presentation'] },
   { title: 'Multi-Agent LLM for Faculty', description: 'Custom agentic architecture enabling faculty to query institutional datasets through natural language.', tools: ['Python', 'LangGraph', 'Ollama'] },
   { title: 'AutoEDA R Package', description: 'R package generating self-contained interactive HTML exploratory data analysis reports with light/dark theming.', tools: ['R (Plotly, DT, Quarto)', 'HTML/CSS'] },
-  { title: 'Stock Market Prediction & Analysis', description: 'Ensemble forecasting models and structural equation modeling for equity price prediction.', tools: ['Python (yfinance)', 'XGBoost', 'Prophet', 'SEM'] },
+  { title: 'Psychometric Survey Validation', description: 'Exploratory and confirmatory factor analysis validating construct reliability for a proprietary assessment instrument.', tools: ['R', 'EFA/CFA', 'Defining Issues Test'] },
   { title: 'Prisoner\'s Dilemma Behavioral Experiment', description: 'Six-variant experimental design analyzing human-computer interaction persistence; currently on third iteration.', tools: ['Custom Web Interface', 'R', 'Excel'] },
   { title: 'Call of Duty Geospatial Analysis', description: 'Parsed Warzone Caldera map telemetry files to identify optimal landing zones by survival time.', tools: ['Python', 'ETL', 'Heat Mapping'] },
 ];
