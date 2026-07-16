@@ -20,7 +20,9 @@
 .DS_Store
 *.pem
 *.zip
+*.docx
 *:Zone.Identifier
+*:sec.endpointdlp
 
 # debug
 npm-debug.log*
